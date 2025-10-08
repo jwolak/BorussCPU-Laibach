@@ -25,6 +25,16 @@ module boruss_cpu (
     output [7:0] led_out
 );
 
+    // DODAJ: Dzielnik częstotliwości dla widocznych zmian
+    reg [25:0] clk_divider;
+    reg slow_clk;
+    
+    always @(posedge clk) begin
+        clk_divider <= clk_divider + 1;
+        slow_clk <= clk_divider[22]; // ~6Hz dla widocznych zmian
+    end
+
+
     // Rejestry CPU
     reg [7:0] reg_a, reg_b, reg_c, reg_d;
     
@@ -62,10 +72,20 @@ module boruss_cpu (
     
     // Przypisanie LED-ów - wyświetla zawartość rejestru A
     assign led_out = reg_a;
-    
+
+    // Debug ALU i instrukcji
+    // assign led_out[0] = reg_a[0];                    // Bit 0 rejestru A (stały = 1)
+    // assign led_out[1] = alu_result[7];               // Bit 7 wyniku ALU (powinien = 1 po NOT)
+    // assign led_out[2] = alu_result[0];               // Bit 0 wyniku ALU (powinien = 0 po NOT)
+    // assign led_out[3] = update_registers;            // Czy FSM aktualizuje rejestry
+    // assign led_out[4] = (opcode == 4'b0101);         // Czy opcode = NOT (0x5)
+    // assign led_out[5] = (instruction_data == 8'h50); // Czy instrukcja = 0x50
+    // assign led_out[6] = slow_clk;                    // Referencja
+    // assign led_out[7] = |alu_result;                 // Czy ALU produkuje wynik != 0
+
     // Instancja kontrolera pamięci
     boruss_memory_controller memory_ctrl (
-        .clk(clk),
+        .clk(slow_clk),
         .reset(reset),
         .instruction_address(fsm_instruction_addr),
         .instruction_data(instruction_data),
@@ -79,7 +99,7 @@ module boruss_cpu (
     
     // Instancja maszyny stanów
     boruss_cpu_fsm fsm_inst (
-        .clk(clk),
+        .clk(slow_clk),
         .reset(reset),
         .instruction_data(instruction_data),
         .alu_zero_flag(alu_zero_flag),
@@ -112,7 +132,7 @@ module boruss_cpu (
     // Logika przygotowania operandów ALU
     always @(*) begin
         // Domyślnie używaj RAM
-        memory_map_select = 1'b1;
+        memory_map_select = 1'b0; // 0=ROM dla programu
         memory_addr = 8'h00;
         memory_data_in = 8'h00;
         memory_write_enable = 1'b0;
@@ -157,9 +177,9 @@ module boruss_cpu (
     end
     
     // Aktualizacja rejestrów
-    always @(posedge clk or posedge reset) begin
-        if (reset) begin
-            reg_a <= 8'h00;
+    always @(posedge slow_clk or negedge reset) begin
+        if (!reset) begin
+            reg_a <= 8'h01;
             reg_b <= 8'h00;
             reg_c <= 8'h00;
             reg_d <= 8'h00;

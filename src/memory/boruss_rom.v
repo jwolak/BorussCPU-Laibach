@@ -15,52 +15,62 @@ module boruss_rom (
     output reg [7:0] data_out
 );
 
-    // Pamięć ROM 256 bajtów z przykładowym programem
+    // Pamięć ROM 256 bajtów z programem LED Knight Rider
     reg [7:0] rom_memory [255:0];
     
-    // Inicjalizacja ROM z przykładowym programem
+    // Inicjalizacja ROM z programem Knight Rider
     integer i;
     initial begin
-        // Przykładowy program demonstracyjny
-        rom_memory[8'h00] = 8'b00000000; // ADD reg_a, reg_a (NOP - dodaj 0+0)
-        rom_memory[8'h01] = 8'b00010001; // ADD reg_b, reg_b 
-        rom_memory[8'h02] = 8'b00100010; // ADD reg_c, reg_c
-        rom_memory[8'h03] = 8'b00110011; // ADD reg_d, reg_d
+        // Program Knight Rider - z bezpośrednim resetem
         
-        // Test operacji arytmetycznych
-        rom_memory[8'h04] = 8'b00000001; // SUB reg_a, reg_a
-        rom_memory[8'h05] = 8'b00010000; // ADD reg_b, reg_a
-        rom_memory[8'h06] = 8'b11110000; // CMP reg_a, reg_a (porównanie)
+        // Sekwencja dla LED0 (0x01)
+        rom_memory[8'h00] = 8'h01;       // LOAD immediate 0x01 -> reg_a
+        rom_memory[8'h01] = 8'b00000000; // NOP (delay)
+        rom_memory[8'h02] = 8'b00000000; // NOP (delay)
         
-        // Test skoku bezwarunkowego
-        rom_memory[8'h07] = 8'b10000000; // JMP to address in reg_a (skok do adresu 0)
+        // Sekwencja dla LED1 (0x02) 
+        rom_memory[8'h03] = 8'h02;       // LOAD immediate 0x02 -> reg_a
+        rom_memory[8'h04] = 8'b00000000; // NOP (delay)
+        rom_memory[8'h05] = 8'b00000000; // NOP (delay)
         
-        // Test skoków warunkowych
-        rom_memory[8'h08] = 8'b10010000; // JZ - skok jeśli zero_flag=1
-        rom_memory[8'h09] = 8'b10100000; // JNZ - skok jeśli zero_flag=0
-        rom_memory[8'h0A] = 8'b10110000; // JC - skok jeśli carry_flag=1
-        rom_memory[8'h0B] = 8'b11000000; // JNC - skok jeśli carry_flag=0
+        // Sekwencja dla LED2 (0x04)
+        rom_memory[8'h06] = 8'h04;       // LOAD immediate 0x04 -> reg_a
+        rom_memory[8'h07] = 8'b00000000; // NOP (delay) 
+        rom_memory[8'h08] = 8'b00000000; // NOP (delay)
         
-        // Test operacji logicznych
-        rom_memory[8'h0C] = 8'b00100001; // AND reg_a, reg_b
-        rom_memory[8'h0D] = 8'b00110001; // OR reg_a, reg_b
-        rom_memory[8'h0E] = 8'b01000001; // XOR reg_a, reg_b
-        rom_memory[8'h0F] = 8'b01010000; // NOT reg_a
+        // Sekwencja dla LED3 (0x08)
+        rom_memory[8'h09] = 8'h08;       // LOAD immediate 0x08 -> reg_a
+        rom_memory[8'h0A] = 8'b00000000; // NOP (delay)
+        rom_memory[8'h0B] = 8'b00000000; // NOP (delay)
         
-        // Test przesunięć
-        rom_memory[8'h10] = 8'b01100000; // SHL reg_a
-        rom_memory[8'h11] = 8'b01110000; // SHR reg_a
+        // Sekwencja dla LED4 (0x10)
+        rom_memory[8'h0C] = 8'h10;       // LOAD immediate 0x10 -> reg_a
+        rom_memory[8'h0D] = 8'b00000000; // NOP (delay)
+        rom_memory[8'h0E] = 8'b00000000; // NOP (delay)
         
-        // Pętla nieskończona (dla demonstracji)
-        rom_memory[8'h12] = 8'b10000000; // JMP to address 0x00
+        // Sekwencja dla LED5 (0x20)
+        rom_memory[8'h0F] = 8'h20;       // LOAD immediate 0x20 -> reg_a
+        rom_memory[8'h10] = 8'b00000000; // NOP (delay)
+        rom_memory[8'h11] = 8'b00000000; // NOP (delay)
         
-        // Wypełnij resztę pamięci zerami
-        for (i = 8'h13; i < 256; i = i + 1) begin
-            rom_memory[i] = 8'h00;
+        // Sekwencja dla LED6 (0x40)
+        rom_memory[8'h12] = 8'h40;       // LOAD immediate 0x40 -> reg_a
+        rom_memory[8'h13] = 8'b00000000; // NOP (delay)
+        rom_memory[8'h14] = 8'b00000000; // NOP (delay)
+        
+        // Sekwencja dla LED7 (0x80)
+        rom_memory[8'h15] = 8'h80;       // LOAD immediate 0x80 -> reg_a
+        rom_memory[8'h16] = 8'b00000000; // NOP (delay)
+        rom_memory[8'h17] = 8'b00000000; // NOP (delay)
+        
+        // Skok bezwarunkowy do początku
+        rom_memory[8'h18] = 8'b10000000; // JMP
+        rom_memory[8'h19] = 8'h00;       // Adres skoku (0x00)
+        
+        // Wypełnij resztę zerami
+        for (i = 8'h1A; i < 256; i = i + 1) begin
+            rom_memory[i] = 8'b00000000; // NOP
         end
-        
-        // Instrukcja HALT na końcu
-        rom_memory[8'hFF] = 8'hFF; // HALT
     end
     
     // Logika odczytu (kombinacyjna)
