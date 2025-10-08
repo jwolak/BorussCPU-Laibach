@@ -19,6 +19,7 @@ module boruss_rom (
     reg [7:0] rom_memory [255:0];
     
     // Inicjalizacja ROM z przykładowym programem
+    integer i;
     initial begin
         // Przykładowy program demonstracyjny
         rom_memory[8'h00] = 8'b00000000; // ADD reg_a, reg_a (NOP - dodaj 0+0)
@@ -54,7 +55,6 @@ module boruss_rom (
         rom_memory[8'h12] = 8'b10000000; // JMP to address 0x00
         
         // Wypełnij resztę pamięci zerami
-        integer i;
         for (i = 8'h13; i < 256; i = i + 1) begin
             rom_memory[i] = 8'h00;
         end

@@ -39,6 +39,7 @@ module boruss_cpu_fsm (
     localparam [2:0] HALT     = 3'b100;
 
     reg [2:0] next_state;
+    reg [7:0] next_pc;
     
     // Flagi CPU (zachowane między instrukcjami)
     reg zero_flag;
@@ -59,6 +60,15 @@ module boruss_cpu_fsm (
             src_reg <= 2'b00;
         end else begin
             current_state <= next_state;
+            pc <= next_pc;
+            
+            // Aktualizacja instrukcji w stanie DECODE
+            if (current_state == DECODE) begin
+                current_instruction <= instruction_data;
+                opcode <= instruction_data[7:4];
+                dest_reg <= instruction_data[3:2];
+                src_reg <= instruction_data[1:0];
+            end
             
             // Aktualizacja flag w stanie WRITEBACK
             if (current_state == WRITEBACK && update_flags) begin
@@ -72,6 +82,7 @@ module boruss_cpu_fsm (
     // Maszyna stanów - logika kombinacyjna
     always @(*) begin
         next_state = current_state;
+        next_pc = pc;
         instruction_addr = pc;
         execute_jump = 1'b0;
         update_registers = 1'b0;
@@ -84,11 +95,6 @@ module boruss_cpu_fsm (
             end
             
             DECODE: begin
-                current_instruction = instruction_data;
-                opcode = instruction_data[7:4];
-                dest_reg = instruction_data[3:2];
-                src_reg = instruction_data[1:0];
-                
                 // Sprawdź czy to instrukcja HALT
                 if (instruction_data == 8'hFF) begin
                     next_state = HALT;
@@ -107,62 +113,62 @@ module boruss_cpu_fsm (
                 // Obsługa skoków
                 case (opcode)
                     4'b1000: begin // JMP - bezwarunkowy
-                        pc = alu_result;
+                        next_pc = alu_result;
                         execute_jump = 1'b1;
                     end
                     4'b1001: begin // JZ
                         if (zero_flag) begin
-                            pc = alu_result;
+                            next_pc = alu_result;
                             execute_jump = 1'b1;
                         end else begin
-                            pc = pc + 1;
+                            next_pc = pc + 1;
                         end
                     end
                     4'b1010: begin // JNZ  
                         if (!zero_flag) begin
-                            pc = alu_result;
+                            next_pc = alu_result;
                             execute_jump = 1'b1;
                         end else begin
-                            pc = pc + 1;
+                            next_pc = pc + 1;
                         end
                     end
                     4'b1011: begin // JC
                         if (carry_flag) begin
-                            pc = alu_result;
+                            next_pc = alu_result;
                             execute_jump = 1'b1;
                         end else begin
-                            pc = pc + 1;
+                            next_pc = pc + 1;
                         end
                     end
                     4'b1100: begin // JNC
                         if (!carry_flag) begin
-                            pc = alu_result;
+                            next_pc = alu_result;
                             execute_jump = 1'b1;
                         end else begin
-                            pc = pc + 1;
+                            next_pc = pc + 1;
                         end
                     end
                     4'b1101: begin // JN
                         if (negative_flag) begin
-                            pc = alu_result;
+                            next_pc = alu_result;
                             execute_jump = 1'b1;
                         end else begin
-                            pc = pc + 1;
+                            next_pc = pc + 1;
                         end
                     end
                     4'b1110: begin // JP
                         if (!negative_flag) begin
-                            pc = alu_result;
+                            next_pc = alu_result;
                             execute_jump = 1'b1;
                         end else begin
-                            pc = pc + 1;
+                            next_pc = pc + 1;
                         end
                     end
                     4'b1111: begin // CMP - tylko ustawia flagi
-                        pc = pc + 1;
+                        next_pc = pc + 1;
                     end
                     default: begin // Operacje arytmetyczno-logiczne
-                        pc = pc + 1;
+                        next_pc = pc + 1;
                         update_registers = 1'b1;
                     end
                 endcase

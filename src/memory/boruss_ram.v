@@ -25,18 +25,15 @@ module boruss_ram (
     
     // Inicjalizacja pamięci
     integer i;
-    always @(posedge reset) begin
+    
+    // Połączona logika reset/odczyt/zapis w jednym bloku
+    always @(posedge clk or posedge reset) begin
         if (reset) begin
             for (i = 0; i < 256; i = i + 1) begin
                 memory[i] <= 8'h00;
             end
             data_out <= 8'h00;
-        end
-    end
-    
-    // Logika odczytu/zapisu
-    always @(posedge clk) begin
-        if (!reset) begin
+        end else begin
             if (write_enable && !read_enable) begin
                 // Zapis do pamięci
                 memory[address] <= data_in;
