@@ -47,8 +47,8 @@ module boruss_cpu_fsm (
     reg negative_flag;
 
     // Maszyna stanów - logika sekwencyjna
-    always @(posedge clk or posedge reset) begin
-        if (reset) begin
+    always @(posedge clk or negedge reset) begin
+        if (!reset) begin
             current_state <= FETCH;
             pc <= 8'h00;
             zero_flag <= 1'b0;
