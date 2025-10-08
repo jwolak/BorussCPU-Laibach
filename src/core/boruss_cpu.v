@@ -19,7 +19,10 @@ module boruss_cpu (
     output [7:0] debug_reg_a,
     output [7:0] debug_reg_b,
     output [7:0] debug_reg_c,
-    output [7:0] debug_reg_d
+    output [7:0] debug_reg_d,
+    
+    // Wyjście dla 8 LED-ów DE0-Nano
+    output [7:0] led_out
 );
 
     // Rejestry CPU
@@ -56,6 +59,9 @@ module boruss_cpu (
     assign debug_reg_b = reg_b;
     assign debug_reg_c = reg_c;
     assign debug_reg_d = reg_d;
+    
+    // Przypisanie LED-ów - wyświetla zawartość rejestru A
+    assign led_out = reg_a;
     
     // Instancja kontrolera pamięci
     boruss_memory_controller memory_ctrl (
