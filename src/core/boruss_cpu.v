@@ -20,6 +20,7 @@ module boruss_cpu (
     output [7:0] debug_reg_b,
     output [7:0] debug_reg_c,
     output [7:0] debug_reg_d,
+
     
     // Wyjście dla 8 LED-ów DE0-Nano
     output [7:0] led_out
@@ -55,6 +56,8 @@ module boruss_cpu (
     wire [1:0] dest_reg, src_reg;
     wire execute_jump, update_registers, update_flags;
     wire [2:0] current_state;
+    wire [7:0] immediate_value;
+    wire is_immediate;
     
     // Sygnały ALU
     reg [7:0] alu_operand_a, alu_operand_b, alu_operation;
@@ -72,16 +75,6 @@ module boruss_cpu (
     
     // Przypisanie LED-ów - wyświetla zawartość rejestru A
     assign led_out = reg_a;
-
-    // Debug ALU i instrukcji
-    // assign led_out[0] = reg_a[0];                    // Bit 0 rejestru A (stały = 1)
-    // assign led_out[1] = alu_result[7];               // Bit 7 wyniku ALU (powinien = 1 po NOT)
-    // assign led_out[2] = alu_result[0];               // Bit 0 wyniku ALU (powinien = 0 po NOT)
-    // assign led_out[3] = update_registers;            // Czy FSM aktualizuje rejestry
-    // assign led_out[4] = (opcode == 4'b0101);         // Czy opcode = NOT (0x5)
-    // assign led_out[5] = (instruction_data == 8'h50); // Czy instrukcja = 0x50
-    // assign led_out[6] = slow_clk;                    // Referencja
-    // assign led_out[7] = |alu_result;                 // Czy ALU produkuje wynik != 0
 
     // Instancja kontrolera pamięci
     boruss_memory_controller memory_ctrl (
@@ -115,7 +108,9 @@ module boruss_cpu (
         .src_reg(src_reg),
         .execute_jump(execute_jump),
         .update_registers(update_registers),
-        .update_flags(update_flags)
+        .update_flags(update_flags),
+        .immediate_value_out(immediate_value),
+        .is_immediate_out(is_immediate)       
     );
     
     // Instancja ALU
@@ -131,14 +126,14 @@ module boruss_cpu (
     
     // Logika przygotowania operandów ALU
     always @(*) begin
-        // Domyślnie używaj RAM
-        memory_map_select = 1'b0; // 0=ROM dla programu
+        // Domyślnie używaj ROM
+        memory_map_select = 1'b0;
         memory_addr = 8'h00;
         memory_data_in = 8'h00;
         memory_write_enable = 1'b0;
         memory_read_enable = 1'b0;
-        
-        // Wybór operandu A
+
+        // Wybór operandu A (źródłowy rejestr)
         case (src_reg)
             2'b00: alu_operand_a = reg_a;
             2'b01: alu_operand_a = reg_b;
@@ -146,13 +141,17 @@ module boruss_cpu (
             2'b11: alu_operand_a = reg_d;
         endcase
         
-        // Wybór operandu B
-        case (dest_reg)
-            2'b00: alu_operand_b = reg_a;
-            2'b01: alu_operand_b = reg_b;
-            2'b10: alu_operand_b = reg_c;
-            2'b11: alu_operand_b = reg_d;
-        endcase
+        //Wybór operandu B - immediate lub rejestr
+        if (is_immediate) begin
+            alu_operand_b = immediate_value; // Użyj wartości immediate
+        end else begin
+            case (dest_reg) // Dla operacji rejestr-rejestr
+                2'b00: alu_operand_b = reg_a;
+                2'b01: alu_operand_b = reg_b;
+                2'b10: alu_operand_b = reg_c;
+                2'b11: alu_operand_b = reg_d;
+            endcase
+        end
         
         // Mapowanie opcode na kod operacji ALU
         case (opcode)
@@ -179,18 +178,17 @@ module boruss_cpu (
     // Aktualizacja rejestrów
     always @(posedge slow_clk or negedge reset) begin
         if (!reset) begin
-            reg_a <= 8'h01;
+            reg_a <= 8'h00; // zaczynaj od 0
             reg_b <= 8'h00;
             reg_c <= 8'h00;
             reg_d <= 8'h00;
         end else begin
-            // Aktualizacja rejestrów po operacjach arytmetyczno-logicznych
             if (update_registers) begin
                 case (dest_reg)
-                    2'b00: reg_a <= alu_result;
-                    2'b01: reg_b <= alu_result;
-                    2'b10: reg_c <= alu_result;
-                    2'b11: reg_d <= alu_result;
+                    2'b00: reg_a <= is_immediate ? immediate_value : alu_result;
+                    2'b01: reg_b <= is_immediate ? immediate_value : alu_result;
+                    2'b10: reg_c <= is_immediate ? immediate_value : alu_result;
+                    2'b11: reg_d <= is_immediate ? immediate_value : alu_result;
                 endcase
             end
         end
