@@ -32,7 +32,7 @@ module boruss_cpu (
     
     always @(posedge clk) begin
         clk_divider <= clk_divider + 1;
-        slow_clk <= clk_divider[22]; // ~6Hz dla widocznych zmian
+        slow_clk <= clk_divider[20]; // ~48Hz dla widocznych zmian
     end
 
 
