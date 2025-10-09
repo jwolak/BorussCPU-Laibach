@@ -21,48 +21,32 @@ module boruss_rom (
     // Inicjalizacja ROM z programem Knight Rider
     integer i;
     initial begin
-      // Program Knight Rider - poprawny format instrukcji
-        
-        // LOAD immediate 0x01 do reg_a (LED0)
-        // Format: [opcode 0000][dest_reg 00][src 0001] + immediate value
-        rom_memory[8'h00] = 8'b00000001; // LOAD immediate do reg_a
-        rom_memory[8'h01] = 8'h01;       // Wartość immediate: 0x01 (LED0)
-        
-        // SHL reg_a (LED0 -> LED1)
-        rom_memory[8'h02] = 8'b01100000; // SHL reg_a (opcode=0110, dest=00, src=00)
-        
-        // SHL reg_a (LED1 -> LED2)
-        rom_memory[8'h02] = 8'b01100000; // SHL reg_a
+   // Inicjalizuj pamięć zerami
+        for (i = 0; i < 256; i = i + 1) begin
+            rom_memory[i] = 8'h00;
+        end
 
+        // Zawsze próbuj załadować z pliku
+        $readmemh("program/knight_rider.mem", rom_memory);
+        $display("Program loaded from program/knight_rider.mem");
         
-        // SHL reg_a (LED2 -> LED3)
-        rom_memory[8'h04] = 8'b01100000; // SHL reg_a
-
-        
-        // SHL reg_a (LED3 -> LED4)
-        rom_memory[8'h05] = 8'b01100000; // SHL reg_a
-
-        
-        // SHL reg_a (LED4 -> LED5)
-        rom_memory[8'h06] = 8'b01100000; // SHL reg_a
-    
-        
-        // SHL reg_a (LED5 -> LED6)
-        rom_memory[8'h07] = 8'b01100000; // SHL reg_a
-
-        
-        // SHL reg_a (LED6 -> LED7)
-        rom_memory[8'h08] = 8'b01100000; // SHL reg_a
-   
-        
-        // Bezwarunkowy skok do początku
-        // Format: [opcode 1000][dest 00][src 00] + adres
-        rom_memory[8'h09] = 8'b10000000; // JMP (opcode=1000, dest=00, src=00)
-        rom_memory[8'h0A] = 8'h00;       // Adres skoku: 0x00 (początek programu)
-        
-        // Wypełnij resztę zerami (NOP)
-        for (i = 8'h0B; i < 256; i = i + 1) begin
-            rom_memory[i] = 8'b00000000; // NOP
+        // Sprawdź czy pierwszy bajt jest != 0 (program załadowany)
+        if (rom_memory[0] == 8'h00) begin
+            $display("No program file found, using built-in Knight Rider");
+            // Domyślny program
+            rom_memory[8'h00] = 8'b00000001; // LOAD immediate
+            rom_memory[8'h01] = 8'h01;       // Value: 0x01
+            rom_memory[8'h02] = 8'b01100000; // SHL
+            rom_memory[8'h03] = 8'b01100000; // SHL
+            rom_memory[8'h04] = 8'b01100000; // SHL
+            rom_memory[8'h05] = 8'b01100000; // SHL
+            rom_memory[8'h06] = 8'b01100000; // SHL
+            rom_memory[8'h07] = 8'b01100000; // SHL
+            rom_memory[8'h08] = 8'b01100000; // SHL
+            rom_memory[8'h09] = 8'b10000000; // JMP
+            rom_memory[8'h0A] = 8'h00;       // Address
+        end else begin
+            $display("Program loaded from program/knight_rider.mem");
         end
     end
     
