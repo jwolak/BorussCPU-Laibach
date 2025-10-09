@@ -27,9 +27,9 @@ module boruss_rom (
         end
 
         // Zawsze próbuj załadować z pliku
-        $readmemh("program/knight_rider.mem", rom_memory);
-        $display("Program loaded from program/knight_rider.mem");
-        
+        $readmemh("program/knight_rider_two_way.mem", rom_memory);
+        $display("Program loaded from program/knight_rider_two_way.mem");
+
         // Sprawdź czy pierwszy bajt jest != 0 (program załadowany)
         if (rom_memory[0] == 8'h00) begin
             $display("No program file found, using built-in Knight Rider");
