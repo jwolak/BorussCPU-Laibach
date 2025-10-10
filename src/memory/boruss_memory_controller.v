@@ -43,10 +43,6 @@
 //              Provides centralized control for memory read/write operations,
 //              cache management, and memory mapped I/O access.
 //
-// Author: [Janusz Wolak]
-// Date: [October 2025]
-// Version: [1.0]
-//
 // Functionality:
 //   - Memory address decoding and routing
 //   - Read/write operation control
@@ -54,9 +50,6 @@
 //   - Interface with cache subsystem
 //   - Memory mapped I/O handling
 //
-// Notes:
-//   - Part of the Boruss CPU Laibach implementation
-//   - Ensure proper timing constraints for memory operations
 //==============================================================================
 module boruss_memory_controller (
     input clk,
