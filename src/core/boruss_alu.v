@@ -35,6 +35,48 @@
  *
  */
 
+//===========================================================================================
+// Module Name:     boruss_alu
+// Description:     Arithmetic Logic Unit for BorussCPU-Laibach processor core.
+//                  Performs arithmetic, logical, and comparison operations based on 
+//                  ALU control signals. Supports standard operations like ADD, SUB,
+//                  AND, OR, XOR, SLT, and shift operations.
+//
+// Inputs:
+// - operand_a: First input operand for ALU operation, typically the primary
+//               data input from register file or immediate value
+//
+// - operand_b: Second input operand for ALU operation, can be from register
+//               file, immediate value, or forwarded data from pipeline stages
+//
+// - operation_code: 8-bit control signal that determines which ALU operation
+//                  to perform. Each code corresponds to a specific arithmetic,
+//                  logical, or control operation:
+//                  0x00 - ADD (Addition)
+//                  0x01 - SUB (Subtraction) 
+//                  0x02 - AND (Bitwise AND)
+//                  0x03 - OR (Bitwise OR)
+//                  0x04 - XOR (Bitwise XOR)
+//                  0x05 - NOT (Bitwise NOT of operand_a)
+//                  0x06 - SHL (Shift Left)
+//                  0x07 - SHR (Shift Right)
+//                  0x08 - JMP (Unconditional Jump)
+//                  0x09 - JZ (Jump if Zero)
+//                  0x0A - JNZ (Jump if Not Zero)
+//                  0x0B - JC (Jump if Carry)
+//                  0x0C - JNC (Jump if No Carry)
+//                  0x0D - JN (Jump if Negative)
+//                  0x0E - JP (Jump if Positive)
+//                  0x0F - CMP (Compare, sets flags)
+//
+// Outputs:
+// - alu_result: 8-bit result of the ALU operation
+// - zero_flag: Single-bit flag indicating if the ALU result equals zero
+// - overflow_flag: Single-bit flag indicating arithmetic overflow occurred
+// - carry_flag: Single-bit flag indicating carry out from the most significant bit
+// - negative_flag: Single-bit flag indicating if the ALU result is negative (MSB = 1)
+//
+//===========================================================================================
 module boruss_alu (
     input [7:0] operand_a,
     input [7:0] operand_b,
