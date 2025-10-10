@@ -229,21 +229,21 @@ module boruss_cpu (
 
         // Select operand A (source register)
         case (src_reg)
-            2'b00: alu_operand_a = reg_a;
-            2'b01: alu_operand_a = reg_b;
-            2'b10: alu_operand_a = reg_c;
-            2'b11: alu_operand_a = reg_d;
+            2'b00: alu_operand_a = reg_a;   // if src_reg is 0 then use reg_a
+            2'b01: alu_operand_a = reg_b;   // if src_reg is 1 then use reg_b
+            2'b10: alu_operand_a = reg_c;   // if src_reg is 2 then use reg_c
+            2'b11: alu_operand_a = reg_d;   // if src_reg is 3 then use reg_d
         endcase
 
         // Select operand B - immediate or register
         if (is_immediate) begin
-            alu_operand_b = immediate_value; // Use immediate value
+            alu_operand_b = immediate_value; // use immediate value (instead to use value from register)
         end else begin
             case (dest_reg) // For register-register operations
-                2'b00: alu_operand_b = reg_a;
-                2'b01: alu_operand_b = reg_b;
-                2'b10: alu_operand_b = reg_c;
-                2'b11: alu_operand_b = reg_d;
+                2'b00: alu_operand_b = reg_a;   // if dest_reg is 0 then use reg_a
+                2'b01: alu_operand_b = reg_b;   // if dest_reg is 1 then use reg_b
+                2'b10: alu_operand_b = reg_c;   // if dest_reg is 2 then use reg_c
+                2'b11: alu_operand_b = reg_d;   // if dest_reg is 3 then use reg_d
             endcase
         end
 
@@ -265,21 +265,21 @@ module boruss_cpu (
             4'b1101: alu_operation = 8'b00001101; // JN
             4'b1110: alu_operation = 8'b00001110; // JP
             4'b1111: alu_operation = 8'b00001111; // CMP
-            default: alu_operation = 8'b00000000;
+            default: alu_operation = 8'b00000000; // Default to ADD
         endcase
     end
 
     // Register update logic
     always @(posedge slow_clk or negedge reset) begin
         if (!reset) begin
-            reg_a <= 8'h00; // start from 0
+            reg_a <= 8'h00; // reset all registers to 0
             reg_b <= 8'h00;
             reg_c <= 8'h00;
             reg_d <= 8'h00;
         end else begin
-            if (update_registers) begin
-                case (dest_reg)
-                    2'b00: reg_a <= is_immediate ? immediate_value : alu_result;
+            if (update_registers) begin // Update registers if enabled
+                case (dest_reg) // Select destination register
+                    2'b00: reg_a <= is_immediate ? immediate_value : alu_result;    // if immediate mode use immediate value else use ALU result
                     2'b01: reg_b <= is_immediate ? immediate_value : alu_result;
                     2'b10: reg_c <= is_immediate ? immediate_value : alu_result;
                     2'b11: reg_d <= is_immediate ? immediate_value : alu_result;
