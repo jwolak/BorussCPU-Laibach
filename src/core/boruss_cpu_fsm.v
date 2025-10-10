@@ -38,51 +38,51 @@
 module boruss_cpu_fsm (
     input clk,
     input reset,
-    input [7:0] instruction_data,
-    input alu_zero_flag,
-    input alu_carry_flag,
-    input alu_negative_flag,
-    input [7:0] alu_result,
+    input [7:0] instruction_data,           // instruction bus
+    input alu_zero_flag,                    // set if execution result is zero
+    input alu_carry_flag,                   // set if execution result caused a carry
+    input alu_negative_flag,                // set if execution result is negative
+    input [7:0] alu_result,                 // result from ALU (for write-back stage)
     
-    output reg [2:0] current_state,
-    output reg [7:0] pc,
-    output reg [7:0] instruction_addr,
-    output reg [7:0] current_instruction,
-    output reg [3:0] opcode,
-    output reg [1:0] dest_reg,
-    output reg [1:0] src_reg,
-    output reg execute_jump,
-    output reg update_registers,
-    output reg update_flags,
-    output reg [7:0] immediate_value_out,
-    output reg is_immediate_out
+    output reg [2:0] current_state,         // current state of the FSM (FETCH, DECODE, EXECUTE, WRITEBACK, HALT)
+    output reg [7:0] pc,                    // program counter
+    output reg [7:0] instruction_addr,      // address to fetch the next instruction from memory
+    output reg [7:0] current_instruction,   // currently decoded instruction
+    output reg [3:0] opcode,                // opcode of the current instruction
+    output reg [1:0] dest_reg,              // destination register for the current instruction
+    output reg [1:0] src_reg,               // source register for the current instruction
+    output reg execute_jump,                // signal to indicate a jump should be executed
+    output reg update_registers,            // signal to indicate registers should be updated
+    output reg update_flags,                // signal to indicate flags should be updated (zero, carry, negative)
+    output reg [7:0] immediate_value_out,   // immediate value for instructions that require it
+    output reg is_immediate_out             // flag indicating if the current instruction uses an immediate value
 );
 
     // Definicje stanów
-    localparam [2:0] FETCH      = 3'b000;
-    localparam [2:0] DECODE     = 3'b001;
-    localparam [2:0] EXECUTE    = 3'b010;
-    localparam [2:0] WRITEBACK  = 3'b011;
-    localparam [2:0] FETCH_IMM  = 3'b100; // ZMIEŃ: Pobieranie wartości immediate
-    localparam [2:0] HALT       = 3'b101;
+    localparam [2:0] FETCH      = 3'b000;   // Fetch the next instruction
+    localparam [2:0] DECODE     = 3'b001;   // Decode the fetched instruction
+    localparam [2:0] EXECUTE    = 3'b010;   // Execute the decoded instruction
+    localparam [2:0] WRITEBACK  = 3'b011;   // Write back the result
+    localparam [2:0] FETCH_IMM  = 3'b100;   // Fetch immediate value
+    localparam [2:0] HALT       = 3'b101;   // Halt the CPU
 
-    reg [2:0] next_state;
-    reg [7:0] next_pc;
-    reg [7:0] immediate_value;
-    reg is_immediate;
+    reg [2:0] next_state;                   // next state of the FSM
+    reg [7:0] next_pc;                      // next value of the program counter
+    reg [7:0] immediate_value;              // immediate value for instructions that require it
+    reg is_immediate;                       // flag indicating if the current instruction uses an immediate value
     
-    // Flagi CPU (zachowane między instrukcjami)
-    reg zero_flag;
-    reg carry_flag;
-    reg negative_flag;
+    // CPU flags (preserved between instructions)
+    reg zero_flag;                          // internal zero flag 
+    reg carry_flag;                         // internal carry flag
+    reg negative_flag;                      // internal negative flag
 
-    // Przypisania wyjściowe
+    // output assignments
     always @(*) begin
         immediate_value_out = immediate_value;
         is_immediate_out = is_immediate;
     end
 
-    // Maszyna stanów - logika sekwencyjna
+    // state machine - sequential logic
     always @(posedge clk or negedge reset) begin
         if (!reset) begin
             current_state <= FETCH;
@@ -100,7 +100,7 @@ module boruss_cpu_fsm (
             current_state <= next_state;
             pc <= next_pc;
             
-            // Aktualizacja instrukcji w stanie DECODE
+            // Update instruction in DECODE state
             if (current_state == DECODE) begin
                 current_instruction <= instruction_data;
                 opcode <= instruction_data[7:4];
@@ -109,13 +109,13 @@ module boruss_cpu_fsm (
                 is_immediate <= 1'b0; // Reset flagi immediate
             end
             
-            // Zapisz wartość immediate w stanie FETCH_IMM
+            //  save immediate value in FETCH_IMM state
             if (current_state == FETCH_IMM) begin
                 immediate_value <= instruction_data;
                 is_immediate <= 1'b1;
             end
-            
-            // Aktualizacja flag w stanie WRITEBACK
+
+            // Update flags in WRITEBACK state
             if (current_state == WRITEBACK && update_flags) begin
                 zero_flag <= alu_zero_flag;
                 carry_flag <= alu_carry_flag;
@@ -124,7 +124,7 @@ module boruss_cpu_fsm (
         end
     end
 
-    // Maszyna stanów - logika kombinacyjna
+    // state machine - combinational logic
     always @(*) begin
         next_state = current_state;
         next_pc = pc;
@@ -140,24 +140,24 @@ module boruss_cpu_fsm (
             end
             
             DECODE: begin
-                // Sprawdź czy to instrukcja HALT
+                // Check if this is a HALT instruction
                 if (instruction_data == 8'hFF) begin
                     next_state = HALT;
-                // Sprawdź czy instrukcja potrzebuje immediate value
-                // Format: [4-bit opcode][4-bit modifier] - jeśli modifier != 0, to immediate
+                // Check if the instruction requires an immediate value
+                // Format: [4-bit opcode][4-bit modifier] - if modifier != 0, then immediate
                 end else if (instruction_data[3:0] != 4'b0000 && instruction_data[7:4] <= 4'b0111) begin
-                    next_state = FETCH_IMM; // Pobierz wartość immediate
-                // Instrukcje skoków zawsze 2-bajtowe
+                    next_state = FETCH_IMM; // Get immediate value
+                // Jump instructions are always 2 bytes
                 end else if (instruction_data[7:4] >= 4'b1000 && instruction_data[7:4] <= 4'b1110) begin
-                    next_state = FETCH_IMM; // Pobierz adres skoku
+                    next_state = FETCH_IMM; // Get jump address
                 end else begin
-                    next_state = EXECUTE; // Standardowa instrukcja bez immediate
+                    next_state = EXECUTE; // Standard instruction without immediate
                 end
             end
 
-            // Stan pobierania wartości immediate lub adresu
+            // state for fetching immediate value or address
             FETCH_IMM: begin
-                instruction_addr = pc + 1; // Pobierz następny bajt
+                instruction_addr = pc + 1; // Get next byte
                 next_state = EXECUTE;
             end
             
@@ -166,12 +166,12 @@ module boruss_cpu_fsm (
             end
             
             WRITEBACK: begin
-                // Obsługa skoków
+                // Handle jumps
                 if (opcode >= 4'b1000 && opcode <= 4'b1110) begin
                     update_flags = 1'b1;
                     
                     case (opcode)
-                        4'b1000: begin // JMP - bezwarunkowy
+                        4'b1000: begin // JMP - unconditional
                             next_pc = immediate_value;
                             execute_jump = 1'b1;
                         end
@@ -229,14 +229,14 @@ module boruss_cpu_fsm (
                             update_registers = 1'b0;
                         end
                     endcase
-                // Instrukcje z immediate value
+                // Instructions with immediate value
                 end else if (is_immediate) begin
-                    next_pc = pc + 2; // Instrukcja 2-bajtowa
+                    next_pc = pc + 2; // 2-byte instruction
                     update_registers = 1'b1;
-                    update_flags = 1'b0; // Immediate nie zmienia flag
-                // Standardowe instrukcje ALU
+                    update_flags = 1'b0; // Immediate does not change flags
+                // Standard ALU instructions
                 end else begin
-                    next_pc = pc + 1; // Instrukcja 1-bajtowa
+                    next_pc = pc + 1; // 1-byte instruction
                     update_registers = 1'b1;
                     update_flags = 1'b1;
                 end
