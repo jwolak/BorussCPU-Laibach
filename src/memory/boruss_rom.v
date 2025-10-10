@@ -40,25 +40,25 @@ module boruss_rom (
     output reg [7:0] data_out
 );
 
-    // Pamięć ROM 256 bajtów z programem LED Knight Rider
+    // ROM memory 256 bytes with LED Knight Rider program
     reg [7:0] rom_memory [255:0];
-    
-    // Inicjalizacja ROM z programem Knight Rider
+        
+    // ROM initialization with Knight Rider program
     integer i;
     initial begin
-   // Inicjalizuj pamięć zerami
+        // Initialize memory with zeros
         for (i = 0; i < 256; i = i + 1) begin
             rom_memory[i] = 8'h00;
         end
 
-        // Zawsze próbuj załadować z pliku
+        // Always try to load from file
         $readmemh("src/program/knight_rider_two_way.mem", rom_memory);
         $display("Program loaded from src/program/knight_rider_two_way.mem");
 
-        // Sprawdź czy pierwszy bajt jest != 0 (program załadowany)
+        // Check if the first byte is != 0 (program loaded correctly)
         if (rom_memory[0] == 8'h00) begin
             $display("No program file found, using built-in Knight Rider");
-            // Domyślny program
+            // Default program
             rom_memory[8'h00] = 8'b00000001; // LOAD immediate
             rom_memory[8'h01] = 8'h01;       // Value: 0x01
             rom_memory[8'h02] = 8'b01100000; // SHL
@@ -74,8 +74,8 @@ module boruss_rom (
             $display("Program loaded from src/program/knight_rider.mem");
         end
     end
-    
-    // Logika odczytu (kombinacyjna)
+
+    // Read logic (combinational)
     always @(*) begin
         data_out = rom_memory[address];
     end

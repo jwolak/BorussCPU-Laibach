@@ -45,13 +45,13 @@ module boruss_ram (
     output reg [7:0] data_out
 );
 
-    // Pamięć RAM 256 bajtów (8-bitowe adresy)
+    // RAM memory 256 bytes (8-bit addresses)
     reg [7:0] memory [255:0];
     
-    // Inicjalizacja pamięci
+    // memory initialization
     integer i;
     
-    // Połączona logika reset/odczyt/zapis w jednym bloku
+    // Combined reset/read/write logic in one block
     always @(posedge clk or posedge reset) begin
         if (reset) begin
             for (i = 0; i < 256; i = i + 1) begin
@@ -60,10 +60,10 @@ module boruss_ram (
             data_out <= 8'h00;
         end else begin
             if (write_enable && !read_enable) begin
-                // Zapis do pamięci
+                // Write to memory
                 memory[address] <= data_in;
             end else if (read_enable && !write_enable) begin
-                // Odczyt z pamięci
+                // Read from memory
                 data_out <= memory[address];
             end
         end
