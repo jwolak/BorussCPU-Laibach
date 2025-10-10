@@ -38,33 +38,32 @@
 module boruss_cpu (
     input clk,
     input reset,
-    output [7:0] pc,
-    output [7:0] instruction_addr,
-    output [2:0] cpu_state,
-    output [7:0] debug_reg_a,
-    output [7:0] debug_reg_b,
-    output [7:0] debug_reg_c,
-    output [7:0] debug_reg_d,
-
+    output [7:0] pc,                    // Program Counter - Current address of the instruction being executed
+    output [7:0] instruction_addr,      // Instruction Address - Address used to fetch the current instruction from memory
+    output [2:0] cpu_state,             // CPU State - 3-bit value indicating current processor state (fetch, decode, execute, etc.)
+    output [7:0] debug_reg_a,           // Debug Register A - Contents of general purpose register A for debugging purposes
+    output [7:0] debug_reg_b,           // Debug Register B - Contents of general purpose register B for debugging purposes
+    output [7:0] debug_reg_c,           // Debug Register C - Contents of general purpose register C for debugging purposes
+    output [7:0] debug_reg_d,           // Debug Register D - Contents of general purpose register D for debugging purposes
     
-    // Wyjście dla 8 LED-ów DE0-Nano
+    // LED Output - Displays the value of register A on the LEDs for visual debugging
     output [7:0] led_out
 );
 
-    // DODAJ: Dzielnik częstotliwości dla widocznych zmian
+    // Clock divider to slow down the clock for visible LED changes
     reg [25:0] clk_divider;
     reg slow_clk;
     
     always @(posedge clk) begin
         clk_divider <= clk_divider + 1;
-        slow_clk <= clk_divider[20]; // ~48Hz dla widocznych zmian
+        slow_clk <= clk_divider[20]; // ~24Hz
     end
 
 
-    // Rejestry CPU
+    // CPU registers
     reg [7:0] reg_a, reg_b, reg_c, reg_d;
-    
-    // Sygnały pamięci
+
+    // Memory signals
     wire [7:0] instruction_data;
     wire [7:0] memory_data_out;
     reg [7:0] memory_addr;
@@ -72,8 +71,8 @@ module boruss_cpu (
     reg memory_write_enable;
     reg memory_read_enable;
     reg memory_map_select;  // 0=ROM, 1=RAM
-    
-    // Sygnały z maszyny stanów
+
+    // State machine signals
     wire [7:0] fsm_pc;
     wire [7:0] fsm_instruction_addr;
     wire [7:0] current_instruction;
@@ -84,12 +83,12 @@ module boruss_cpu (
     wire [7:0] immediate_value;
     wire is_immediate;
     
-    // Sygnały ALU
+    // ALU signals
     reg [7:0] alu_operand_a, alu_operand_b, alu_operation;
     wire [7:0] alu_result;
     wire alu_zero_flag, alu_carry_flag, alu_negative_flag;
     
-    // Przypisania wyjściowe
+    // Output assignments
     assign pc = fsm_pc;
     assign instruction_addr = fsm_instruction_addr;
     assign cpu_state = current_state;
@@ -97,11 +96,11 @@ module boruss_cpu (
     assign debug_reg_b = reg_b;
     assign debug_reg_c = reg_c;
     assign debug_reg_d = reg_d;
-    
-    // Przypisanie LED-ów - wyświetla zawartość rejestru A
+
+    // LED Output - Displays the value of register A on the LEDs for visual debugging
     assign led_out = reg_a;
 
-    // Instancja kontrolera pamięci
+    // memory controller instance
     boruss_memory_controller memory_ctrl (
         .clk(slow_clk),
         .reset(reset),
@@ -115,7 +114,7 @@ module boruss_cpu (
         .memory_map_select(memory_map_select)
     );
     
-    // Instancja maszyny stanów
+    // FSM instance
     boruss_cpu_fsm fsm_inst (
         .clk(slow_clk),
         .reset(reset),
@@ -137,8 +136,8 @@ module boruss_cpu (
         .immediate_value_out(immediate_value),
         .is_immediate_out(is_immediate)       
     );
-    
-    // Instancja ALU
+
+    // ALU instance
     boruss_alu alu_inst (
         .operand_a(alu_operand_a),
         .operand_b(alu_operand_b),
@@ -148,37 +147,37 @@ module boruss_cpu (
         .carry_flag(alu_carry_flag),
         .negative_flag(alu_negative_flag)
     );
-    
-    // Logika przygotowania operandów ALU
+
+    // ALU operand preparation logic
     always @(*) begin
-        // Domyślnie używaj ROM
+        // Use ROM by default for instruction fetch
         memory_map_select = 1'b0;
         memory_addr = 8'h00;
         memory_data_in = 8'h00;
         memory_write_enable = 1'b0;
         memory_read_enable = 1'b0;
 
-        // Wybór operandu A (źródłowy rejestr)
+        // Select operand A (source register)
         case (src_reg)
             2'b00: alu_operand_a = reg_a;
             2'b01: alu_operand_a = reg_b;
             2'b10: alu_operand_a = reg_c;
             2'b11: alu_operand_a = reg_d;
         endcase
-        
-        //Wybór operandu B - immediate lub rejestr
+
+        // Select operand B - immediate or register
         if (is_immediate) begin
-            alu_operand_b = immediate_value; // Użyj wartości immediate
+            alu_operand_b = immediate_value; // Use immediate value
         end else begin
-            case (dest_reg) // Dla operacji rejestr-rejestr
+            case (dest_reg) // For register-register operations
                 2'b00: alu_operand_b = reg_a;
                 2'b01: alu_operand_b = reg_b;
                 2'b10: alu_operand_b = reg_c;
                 2'b11: alu_operand_b = reg_d;
             endcase
         end
-        
-        // Mapowanie opcode na kod operacji ALU
+
+        // Map opcode to ALU operation code
         case (opcode)
             4'b0000: alu_operation = 8'b00000000; // ADD
             4'b0001: alu_operation = 8'b00000001; // SUB
@@ -199,11 +198,11 @@ module boruss_cpu (
             default: alu_operation = 8'b00000000;
         endcase
     end
-    
-    // Aktualizacja rejestrów
+
+    // Register update logic
     always @(posedge slow_clk or negedge reset) begin
         if (!reset) begin
-            reg_a <= 8'h00; // zaczynaj od 0
+            reg_a <= 8'h00; // start from 0
             reg_b <= 8'h00;
             reg_c <= 8'h00;
             reg_d <= 8'h00;
