@@ -39,36 +39,36 @@ module boruss_memory_controller (
     input clk,
     input reset,
     
-    // Interfejs CPU dla instrukcji
+    // CPU interface for instructions
     input [7:0] instruction_address,
     output [7:0] instruction_data,
     
-    // Interfejs CPU dla danych
+    // CPU interface for data
     input [7:0] data_address,
     input [7:0] data_in,
     input data_write_enable,
     input data_read_enable,
     output [7:0] data_out,
     
-    // Sygnały kontrolne
-    input memory_map_select  // 0=ROM, 1=RAM dla obszaru danych
+    // Memory mapping control
+    input memory_map_select  // 0=ROM, 1=RAM
 );
 
-    // Sygnały wewnętrzne dla ROM
+    // Internal signals for ROM
     wire [7:0] rom_data_out;
     
-    // Sygnały wewnętrzne dla RAM
+    // Internal signals for RAM
     wire [7:0] ram_data_out;
     reg ram_write_enable;
     reg ram_read_enable;
-    
-    // Instancja ROM (dla instrukcji)
+
+    // ROM instance (for instructions)
     boruss_rom rom_inst (
         .address(instruction_address),
         .data_out(instruction_data)
     );
-    
-    // Instancja RAM (dla danych)
+
+    // RAM instance (for data)
     boruss_ram ram_inst (
         .clk(clk),
         .reset(reset),
@@ -79,20 +79,20 @@ module boruss_memory_controller (
         .data_out(ram_data_out)
     );
     
-    // Logika mapowania pamięci
+    // Memory mapping logic
     always @(*) begin
-        // Domyślne wartości
+        // Default values
         ram_write_enable = 1'b0;
         ram_read_enable = 1'b0;
         
         if (memory_map_select) begin
-            // Dostęp do RAM
+            // Access RAM
             ram_write_enable = data_write_enable;
             ram_read_enable = data_read_enable;
         end
     end
     
-    // Multiplekser wyjścia danych
+    // Data output multiplexer
     assign data_out = memory_map_select ? ram_data_out : rom_data_out;
 
 endmodule
