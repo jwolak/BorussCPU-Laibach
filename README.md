@@ -134,3 +134,16 @@ Experimental RISC CPU with core named "Laibach"
     │     │                                                                   │
     │     └──────────────► HALT                                               │
     └─────────────────────────────────────────────────────────────────────────┘
+
+    ## BORUSS CPU Execution Pipeline – Timing Diagram
+    
+    Time:    0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15
+             │    │    │    │    │    │    │    │    │    │    │    │    │    │    │    │
+    slow_clk ┌────┐    ┌────┐    ┌────┐    ┌────┐    ┌────┐    ┌────┐    ┌────┐    ┌────┐
+             │    └────┘    └────┘    └────┘    └────┘    └────┘    └────┘    └────┘    └─
+
+    CPU      │FETCH│DECODE│EXEC │WRITE│FETCH│DECODE│EXEC │WRITE│FETCH│DECODE│EXEC │WRITE│
+    State    │  0  │  1   │  2  │  3  │  0  │  1   │  2  │  3  │  0  │  1   │  2  │  3  │
+
+    PC       ├─ 00h ─────────────────────────┤ 01h ─────────────────────────┤ 02h ────────
+             │                               │                              │
