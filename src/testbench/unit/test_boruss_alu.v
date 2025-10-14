@@ -339,7 +339,7 @@ module test_boruss_alu;
         $display("Success rate: %0.1f%%", (pass_count * 100.0) / test_count);
         
         if (fail_count == 0) begin
-            $display("ALL TESTS PASSED! 🎉");
+            $display("ALL TESTS PASSED!");
         end else begin
             $display("%0d TESTS FAILED!", fail_count);
             $finish(1); // Finish with error code
