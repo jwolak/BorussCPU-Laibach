@@ -19,3 +19,23 @@ incremental_db/
 output_files/
 simulation/
 .qsys_edit/
+
+# ModelSim files
+work/
+*.wlf
+transcript
+vsim.wlf
+wlft*
+wlf*
+
+# Testbench specific files
+src/testbench/unit/work/
+src/testbench/unit/transcript
+src/testbench/unit/vsim.wlf
+src/testbench/unit/*.wlf
+src/testbench/integration/work/
+src/testbench/integration/transcript
+src/testbench/integration/*.wlf
+src/testbench/system/work/
+src/testbench/system/transcript
+src/testbench/system/*.wlf
