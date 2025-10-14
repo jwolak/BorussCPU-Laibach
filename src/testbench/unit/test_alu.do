@@ -1,15 +1,15 @@
 # test_alu.do
-# Utwórz bibliotekę
+# create library
 vlib work
 
-# Kompiluj pliki
+# Compile files
 vlog ../../core/boruss_alu.v
 vlog test_boruss_alu.v
 
-# Uruchom symulację
+# Run simulation
 vsim test_boruss_alu
 
-# Dodaj sygnały do wave
+# Add signals to wave
 add wave -radix hex /test_boruss_alu/operand_a
 add wave -radix hex /test_boruss_alu/operand_b
 add wave -radix hex /test_boruss_alu/operation_code
@@ -18,8 +18,8 @@ add wave /test_boruss_alu/zero_flag
 add wave /test_boruss_alu/carry_flag
 add wave /test_boruss_alu/negative_flag
 
-# Uruchom test
+# Run test
 run -all
 
-# Przybliż widok
+# Zoom view
 wave zoom full
