@@ -83,7 +83,7 @@ module test_boruss_alu;
         operand_a = 8'd10;
         operand_b = 8'd5;
         operation_code = 8'h00; // ADD
-        #5;
+        #5; // 5 time units delay for operation to complete (time unit is 1ns)
         display_result(8'd15, 1'b0, 1'b0, 1'b0, "ADD 10+5");
         
         // Test 2: ADD -> 255 + 1 = 0 (carry flag set to 1)
