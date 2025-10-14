@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 module test_boruss_alu;
-    // Sygnały testowe
+    // test signals
     reg [7:0] operand_a;
     reg [7:0] operand_b;
     reg [7:0] operation_code;
@@ -11,7 +11,7 @@ module test_boruss_alu;
     wire carry_flag;
     wire negative_flag;
     
-    // Instancja testowanego modułu
+    // ALU instantiation to be tested
     boruss_alu tested_boruss_alu_dut (
         .operand_a(operand_a),
         .operand_b(operand_b),
@@ -22,12 +22,12 @@ module test_boruss_alu;
         .negative_flag(negative_flag)
     );
 
-    // Liczniki testów
+    // Test counters
     integer test_count = 0;
     integer pass_count = 0;
     integer fail_count = 0;
 
-    // Task do wyświetlania wyników
+    // Task for displaying results
     task display_result;
         input [7:0] expected_result;
         input expected_zero;
@@ -56,7 +56,7 @@ module test_boruss_alu;
                 $display("FAIL");
                 fail_count = fail_count + 1;
 
-                 // Szczegółowe informacje o błędzie
+                 // Detailed error information
                 if (result != expected_result)
                     $display("  ERROR: Result mismatch - got %h, expected %h", result, expected_result);
                 if (zero_flag != expected_zero)
@@ -67,7 +67,7 @@ module test_boruss_alu;
                     $display("  ERROR: Negative flag mismatch - got %b, expected %b", negative_flag, expected_negative);
             end
             $display("");
-            #10; // Opóźnienie między testami
+            #10; // Delay between tests
         end
     endtask
     
@@ -75,35 +75,35 @@ module test_boruss_alu;
         $display("=== BORUSS ALU TESTBENCH ===");
         $display("Starting ALU tests...\n");
         
-        // Test 1: ADD - podstawowe dodawanie
+        // Test 1: ADD -> 10 + 5 = 15
         operand_a = 8'd10;
         operand_b = 8'd5;
         operation_code = 8'h00; // ADD
         #5;
         display_result(8'd15, 1'b0, 1'b0, 1'b0, "ADD 10+5");
         
-        // Test 2: ADD - z carry
+        // Test 2: ADD -> 255 + 1 = 0 (carry flag set to 1)
         operand_a = 8'd255;
         operand_b = 8'd1;
         operation_code = 8'h00; // ADD
         #5;
         display_result(8'd0, 1'b1, 1'b1, 1'b0, "ADD 255+1 (carry)");
         
-        // Test 3: SUB - podstawowe odejmowanie
+        // Test 3: SUB -> 10 - 5 = 5
         operand_a = 8'd10;
         operand_b = 8'd5;
         operation_code = 8'h01; // SUB
         #5;
         display_result(8'd5, 1'b0, 1'b0, 1'b0, "SUB 10-5");
         
-        // Test 4: SUB - wynik zero
+        // Test 4: SUB -> 5 - 5 = 0 (zero flag set to 1)
         operand_a = 8'd5;
         operand_b = 8'd5;
         operation_code = 8'h01; // SUB
         #5;
         display_result(8'd0, 1'b1, 1'b0, 1'b0, "SUB 5-5 (zero)");
         
-        // Test 5: SUB - wynik ujemny (w reprezentacji U2)
+        // Test 5: SUB -> 5 - 10 = 251 (negative result, carry flag set to 1)
         operand_a = 8'd5;
         operand_b = 8'd10;
         operation_code = 8'h01; // SUB
@@ -133,7 +133,7 @@ module test_boruss_alu;
         
         // Test 9: NOT
         operand_a = 8'b10101010;
-        operand_b = 8'b00000000; // Nie używane w NOT
+        operand_b = 8'b00000000; // not used
         operation_code = 8'h05; // NOT
         #5;
         display_result(8'b01010101, 1'b0, 1'b0, 1'b0, "NOT ~0xAA");
@@ -145,7 +145,7 @@ module test_boruss_alu;
         #5;
         display_result(8'b10101010, 1'b0, 1'b0, 1'b1, "SHL 0x55<<1");
         
-        // Test 11: SHL z carry
+        // Test 11: SHL (carry set to 1)
         operand_a = 8'b10000000;
         operand_b = 8'b00000000;
         operation_code = 8'h06; // SHL
@@ -159,21 +159,21 @@ module test_boruss_alu;
         #5;
         display_result(8'b01010101, 1'b0, 1'b0, 1'b0, "SHR 0xAA>>1");
         
-        // Test 13: SHR z carry
+        // Test 13: SHR (carry set to 1)
         operand_a = 8'b00000001;
         operand_b = 8'b00000000;
         operation_code = 8'h07; // SHR
         #5;
         display_result(8'b00000000, 1'b1, 1'b1, 1'b0, "SHR 0x01>>1 (carry)");
         
-        // Test 14: CMP - równe wartości
+        // Test 14: CMP - equal values -> 10 == 10
         operand_a = 8'd10;
         operand_b = 8'd10;
         operation_code = 8'h0F; // CMP
         #5;
         display_result(8'd0, 1'b1, 1'b0, 1'b0, "CMP 10-10 (equal)");
         
-        // Test 15: CMP - A > B
+        // Test 15: CMP -> A > B
         operand_a = 8'd15;
         operand_b = 8'd10;
         operation_code = 8'h0F; // CMP
@@ -182,15 +182,15 @@ module test_boruss_alu;
         
         // Test 16: JMP (jump operations)
         operand_a = 8'd0;
-        operand_b = 8'h40; // Adres skoku
+        operand_b = 8'h40; // Jump address
         operation_code = 8'h08; // JMP
         #5;
         display_result(8'h40, 1'b0, 1'b0, 1'b0, "JMP to 0x40");
         
-        // Test 17: Nieznana operacja (default case)
+        // Test 17: Unknown operation (default case)
         operand_a = 8'd10;
         operand_b = 8'd5;
-        operation_code = 8'hFF; // Nieznana operacja
+        operation_code = 8'hFF; // Unknown operation
         #5;
         display_result(8'd0, 1'b1, 1'b0, 1'b0, "Unknown operation");
         
@@ -205,13 +205,13 @@ module test_boruss_alu;
             $display("ALL TESTS PASSED!");
         end else begin
             $display("SOME TESTS FAILED!");
-            $finish(1); // Zakończ z kodem błędu
+            $finish(1); // Finish with error code
         end
 
         $stop;
     end
     
-    // Monitor do śledzenia zmian sygnałów
+    // Monitor changes in signals
     initial begin
         $monitor("Time: %0t | A=%h B=%h Op=%h | Result=%h Z=%b C=%b N=%b", 
                  $time, operand_a, operand_b, operation_code, 
