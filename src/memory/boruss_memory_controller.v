@@ -42,14 +42,6 @@
 //              interfacing between the CPU and various memory subsystems.
 //              Provides centralized control for memory read/write operations,
 //              cache management, and memory mapped I/O access.
-//
-// Functionality:
-//   - Memory address decoding and routing
-//   - Read/write operation control
-//   - Memory access arbitration
-//   - Interface with cache subsystem
-//   - Memory mapped I/O handling
-//
 //==============================================================================
 module boruss_memory_controller (
     input clk,

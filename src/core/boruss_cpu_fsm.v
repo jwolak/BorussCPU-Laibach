@@ -43,52 +43,6 @@
 //   manages the CPU execution pipeline states, instruction fetch cycles,
 //   decode phases, execution control, and memory access coordination.
 //   Implements the main control logic for CPU operation sequencing.
-//
-//
-// Inputs:
-//   - clk: System clock signal
-//   - reset: Active-low asynchronous reset
-//   - instruction_data: 8-bit instruction data from memory bus
-//   - alu_zero_flag: Zero flag from ALU (high when result is zero)
-//   - alu_carry_flag: Carry flag from ALU (high when carry occurred)
-//   - alu_negative_flag: Negative flag from ALU (high when result is negative)
-//   - alu_result: 8-bit result from ALU for write-back operations
-//
-// Outputs:
-//   - current_state: Current FSM state (FETCH, DECODE, EXECUTE, WRITEBACK, HALT)
-//   - pc: Program counter value
-//   - instruction_addr: Memory address for instruction fetch
-//   - current_instruction: Currently decoded instruction
-//   - opcode: 4-bit operation code from current instruction
-//   - dest_reg: Destination register address (2-bit)
-//   - src_reg: Source register address (2-bit)
-//   - execute_jump: Control signal to execute jump operations
-//   - update_registers: Control signal to update register file
-//   - update_flags: Control signal to update CPU flags
-//   - immediate_value_out: Immediate value for instructions requiring it
-//   - is_immediate_out: Flag indicating immediate value usage
-//
-// Internal Signals:
-//   - next_state: Next FSM state to transition to
-//   - next_pc: Next program counter value
-//   - immediate_value: Stored immediate value from 2-byte instructions
-//   - is_immediate: Flag indicating current instruction uses immediate value
-//   - zero_flag: Internal zero flag register (preserved between instructions)
-//   - carry_flag: Internal carry flag register (preserved between instructions) 
-//   - negative_flag: Internal negative flag register (preserved between instructions)
-//
-// Functionality:
-//   - Controls CPU pipeline state transitions
-//   - Manages instruction fetch and decode phases
-//   - Coordinates execution unit operations
-//   - Handles memory access request sequencing
-//   - Implements interrupt and exception handling states
-//
-// Dependencies:
-//   - boruss_alu.v (ALU module for arithmetic operations)
-//   - boruss_memory_controller.v (Memory controller for instruction/data access)
-//   - boruss_cpu_core.v (Top-level CPU core module)
-//
 //==============================================================================
 module boruss_cpu_fsm (
     input clk,

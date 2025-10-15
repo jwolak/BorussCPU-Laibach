@@ -42,68 +42,6 @@
 //              decode, execute, and writeback stages. Handles instruction
 //              execution, register file management, and memory interface
 //              coordination.
-//
-//   Input:
-//     - clk: System clock signal
-//     - reset: Active-low reset signal
-//
-//   Output:
-//     - pc: Program counter output
-//     - instruction_addr: Address for instruction fetch
-//     - cpu_state: Current CPU state
-//     - debug_reg_a: Debug access to register A
-//     - debug_reg_b: Debug access to register B
-//     - debug_reg_c: Debug access to register C
-//     - debug_reg_d: Debug access to register D
-//     - led_out: LED output for visual debugging
-//
-// Internal Signals:
-//   - reg_a, reg_b, reg_c, reg_d: 8-bit general purpose registers
-//   - clk_divider: 26-bit clock divider counter for generating slow clock
-//   - slow_clk: Divided clock signal for visible operation
-//   - instruction_data: 8-bit instruction data from memory
-//   - memory_data_out: 8-bit data output from memory controller
-//   - memory_addr: 8-bit memory address for data operations
-//   - memory_data_in: 8-bit data input to memory controller
-//   - memory_write_enable: Write enable signal for memory operations
-//   - memory_read_enable: Read enable signal for memory operations
-//   - memory_map_select: Memory map selection (0=ROM, 1=RAM)
-//   - fsm_pc: 8-bit program counter from FSM
-//   - fsm_instruction_addr: 8-bit instruction address from FSM
-//   - current_instruction: 8-bit current instruction being processed
-//   - opcode: 4-bit operation code extracted from instruction
-//   - dest_reg, src_reg: 2-bit destination and source register selectors
-//   - execute_jump: Jump execution control signal
-//   - update_registers: Register update enable signal
-//   - update_flags: Flag update enable signal
-//   - current_state: 3-bit current FSM state
-//   - immediate_value: 8-bit immediate value from instruction
-//   - is_immediate: Flag indicating immediate addressing mode
-//   - alu_operand_a, alu_operand_b: 8-bit ALU input operands
-//   - alu_operation: 8-bit ALU operation code
-//   - alu_result: 8-bit ALU computation result
-//   - alu_zero_flag: ALU zero flag output
-//   - alu_carry_flag: ALU carry flag output
-//   - alu_negative_flag: ALU negative flag output
-//
-// Functionality:
-//     This module implements the central processing unit (CPU) core for the BorussCPU-Laibach
-//     architecture. It serves as the main execution engine responsible for:
-//     - Instruction fetch, decode, and execution pipeline
-//     - Register file management and data path control
-//     - Memory interface and data/instruction bus handling
-//     - Control signal generation and coordination
-//     - Exception and interrupt handling
-//
-//     The CPU core integrates multiple functional units including ALU, control unit,
-//     register file, and memory management components to provide complete instruction
-//     processing capabilities according to the BorussCPU instruction set architecture.
-//
-// Dependencies:
-//   - boruss_memory_controller.v: Memory controller for interfacing with RAM/ROM
-//   - boruss_cpu_fsm.v: Finite state machine for CPU control flow
-//   - boruss_alu.v: Arithmetic Logic Unit for computations
-//
 //==============================================================================
 module boruss_cpu (
     input clk,
