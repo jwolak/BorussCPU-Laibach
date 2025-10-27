@@ -1,13 +1,16 @@
 # BorussCPU "Laibach"
-
+```
 "Boruss" is an experimental 8 bits RISC CPU here with code name "Laibach"
+```
 
 ## Project Description
 
-**BorussCPU-Laibach** is an experimental 8-bit RISC processor designed in Verilog. The project aims to demonstrate the complete process of CPU design, from architecture and implementation to verification with unit, integration tests and designed assembly compiler (BorASM)
+```
+BorussCPU "Laibach" is an experimental 8-bit RISC processor designed in Verilog. The project aims to demonstrate the complete process of CPU design, from architecture and implementation to verification with unit, integration tests and a dedicated assembly compiler ([BorASM](https://github.com/jwolak/BorASM)).
+```
 
 ### Key Features
-
+```
 - **8-bit RISC architecture** with a simple instruction set
 - **Four general-purpose 8-bit registers** (reg_a, reg_b, reg_c, reg_d)
 - **ALU** supporting arithmetic and logical operations: ADD, SUB, AND, OR, XOR, NOT, SHL, SHR, JMP, JZ, JNZ, JC, JNC, JN, JP, CMP
@@ -16,12 +19,19 @@
 - **Flag system**: zero (Z), carry (C), negative (N), overflow (O)
 - **Simple four-stage pipeline** for instruction execution
 - **Testbenches** for unit and integration testing (ModelSim compatible)
+```
 
 ### Project Structure
-
+```
 - `src/core/` – Main CPU modules (ALU, FSM, register file, etc.)
 - `src/memory/` – ROM and RAM modules
 - `src/testbench/` – Unit and integration testbenches
+```
+
+### Dedicated ssembly compiler "BorASM"
+```
+https://github.com/jwolak/BorASM
+```
 ---
 
                     BORUSS CPU "LAIBACH" - BLOCK DIAGRAM
