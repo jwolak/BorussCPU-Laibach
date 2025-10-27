@@ -11,14 +11,14 @@ BorussCPU "Laibach" is an experimental 8-bit RISC processor designed in Verilog.
 
 ### Key Features
 ```
-- **8-bit RISC architecture** with a simple instruction set
-- **Four general-purpose 8-bit registers** (reg_a, reg_b, reg_c, reg_d)
-- **ALU** supporting arithmetic and logical operations: ADD, SUB, AND, OR, XOR, NOT, SHL, SHR, JMP, JZ, JNZ, JC, JNC, JN, JP, CMP
-- **Separate ROM (program) and RAM (data) memory blocks**
-- **FSM-based control unit** with states: FETCH, DECODE, EXECUTE, WRITEBACK, FETCH_IMM, HALT
-- **Flag system**: zero (Z), carry (C), negative (N), overflow (O)
-- **Simple four-stage pipeline** for instruction execution
-- **Testbenches** for unit and integration testing (ModelSim compatible)
+- 8-bit RISC architecture** with a simple instruction set
+- Four general-purpose 8-bit registers** (reg_a, reg_b, reg_c, reg_d)
+- ALU** supporting arithmetic and logical operations: ADD, SUB, AND, OR, XOR, NOT, SHL, SHR, JMP, JZ, JNZ, JC, JNC, JN, JP, CMP
+- Separate ROM (program) and RAM (data) memory blocks**
+- FSM-based control unit** with states: FETCH, DECODE, EXECUTE, WRITEBACK, FETCH_IMM, HALT
+- Flag system**: zero (Z), carry (C), negative (N), overflow (O)
+- Simple four-stage pipeline** for instruction execution
+- Testbenches** for unit and integration testing (ModelSim compatible)
 ```
 
 ### Project Structure
