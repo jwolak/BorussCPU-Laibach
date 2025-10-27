@@ -52,8 +52,8 @@ module boruss_rom (
         end
 
         // Always try to load from file
-        $readmemh("src/program/knight_rider_two_way.hex", rom_memory);
-        $display("Program loaded from src/program/knight_rider_two_way.hex");
+        $readmemh("src/program/knight_rider_two_way_borasm_LED1-LED4.hex", rom_memory);
+        $display("Program loaded from src/program/knight_rider_two_way_borasm_LED1-LED4.hex");
 
         // Check if the first byte is != 0 (program loaded correctly)
         if (rom_memory[0] == 8'h00) begin
@@ -71,7 +71,7 @@ module boruss_rom (
             rom_memory[8'h09] = 8'b10000000; // JMP
             rom_memory[8'h0A] = 8'h00;       // Address
         end else begin
-            $display("Program loaded from src/program/knight_rider_two_way.hex");
+            $display("Program loaded from src/program/knight_rider_two_way_borasm_LED1-LED4.hex");
         end
     end
 
