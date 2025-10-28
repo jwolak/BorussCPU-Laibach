@@ -64,6 +64,8 @@ See: [`src/memory/boruss_rom.v`](src/memory/boruss_rom.v)
 ```
 ### Demo program (Terasic DE0-Nano Cyclone® IV EP4CE22F17C6N FPGA)
 
+![BorussCPU Laibach DE0-Nano Demo](media/BorussCPU-Laibach-DE0Nano.gif)
+
 [See source .asm file: `src/program/knight_rider_two_way_borasm_LED1-LED4.asm`](src/program/knight_rider_two_way_borasm_LED1-LED4.asm)
 
 ```
