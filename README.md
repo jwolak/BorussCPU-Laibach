@@ -6,7 +6,10 @@
 ## Project description
 
 ```
-BorussCPU "Laibach" is an experimental 8-bit RISC processor designed in Verilog. The project aims to demonstrate the complete process of CPU design, from architecture and implementation to verification with unit, integration tests and a dedicated assembly compiler BorASM.
+BorussCPU "Laibach" is an experimental 8-bit RISC processor designed in Verilog. 
+The project aims to demonstrate the complete process of CPU design, 
+from architecture and implementation to verification with unit, 
+integration tests and a dedicated assembly compiler BorASM.
 ```
 "BorASM" BorussCPU assembly compiler project link": [https://github.com/jwolak/BorASM](https://github.com/jwolak/BorASM)
 
@@ -14,7 +17,8 @@ BorussCPU "Laibach" is an experimental 8-bit RISC processor designed in Verilog.
 ```
 - 8-bit RISC architecture
 - Four general-purpose 8-bit registers (reg_a, reg_b, reg_c, reg_d)
-- ALU supporting arithmetic and logical operations: ADD, SUB, AND, OR, XOR, NOT, SHL, SHR, JMP, JZ, JNZ, JC, JNC, JN, JP, CMP
+- ALU supporting arithmetic and logical operations: 
+  ADD, SUB, AND, OR, XOR, NOT, SHL, SHR, JMP, JZ, JNZ, JC, JNC, JN, JP, CMP
 - Separate ROM (program) and RAM (data) memory blocks
 - FSM-based control unit with states: FETCH, DECODE, EXECUTE, WRITEBACK, FETCH_IMM, HALT
 - Flag system: zero (Z), carry (C), negative (N), overflow (O)
@@ -27,7 +31,7 @@ BorussCPU "Laibach" is an experimental 8-bit RISC processor designed in Verilog.
 - src/core/ – Main CPU modules (ALU, FSM, register file, etc.)
 - src/memory/ – ROM and RAM modules
 - src/testbench/ – Unit and integration testbenches
-- src/program/ - sources and .hex programs that can be loaded to ROM at start up (also built with BorASM)
+- src/program/ - sources and .hex that can be loaded to ROM at start up (also built by BorASM)
 ```
 
 ### Dedicated assembly compiler "BorASM"
@@ -98,9 +102,9 @@ JMP loop
 02
 ```
 
-[![SUB Operation Result](media/BorussCPU-Laibach-DE0NanoMini.PNG)](media/BorussCPU-Laibach-DE0Nano.gif)
+[![SUB Operation Result](media/BorussCPU-Laibach-DE0NanoMini.PNG)](media/BorussCPU-Laibach-DE0Nano.mp4)
 
-Link: [See BorussCPU Demo program](media/BorussCPU-Laibach-DE0Nano.gif)
+Link: [See BorussCPU Demo program](media/BorussCPU-Laibach-DE0Nano.mp4)
 
 ### Control signals
 ```
