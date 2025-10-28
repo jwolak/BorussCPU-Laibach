@@ -6,8 +6,9 @@
 ## Project description
 
 ```
-BorussCPU "Laibach" is an experimental 8-bit RISC processor designed in Verilog. The project aims to demonstrate the complete process of CPU design, from architecture and implementation to verification with unit, integration tests and a dedicated assembly compiler ([BorASM](https://github.com/jwolak/BorASM)).
+BorussCPU "Laibach" is an experimental 8-bit RISC processor designed in Verilog. The project aims to demonstrate the complete process of CPU design, from architecture and implementation to verification with unit, integration tests and a dedicated assembly compiler BorASM.
 ```
+"BorASM" BorussCPU assembly compiler project link": [https://github.com/jwolak/BorASM](https://github.com/jwolak/BorASM)
 
 ### Key features
 ```
@@ -30,9 +31,75 @@ BorussCPU "Laibach" is an experimental 8-bit RISC processor designed in Verilog.
 ```
 
 ### Dedicated assembly compiler "BorASM"
+
+Visit: [https://github.com/jwolak/BorASM](https://github.com/jwolak/BorASM)
+
+## Example program in ROM
+
+See: [`src/memory/boruss_rom.v`](src/memory/boruss_rom.v)
+
+```sh
+        // Always try to load from file
+        $readmemh("src/program/knight_rider_two_way_borasm_LED1-LED4.hex", rom_memory);
+        $display("Program loaded from src/program/knight_rider_two_way_borasm_LED1-LED4.hex");
+
+        // Check if the first byte is != 0 (program loaded correctly)
+        if (rom_memory[0] == 8'h00) begin
+            $display("No program file found, using built-in Knight Rider");
+            // Default program
+            rom_memory[8'h00] = 8'b00000001; // LOAD immediate
+            rom_memory[8'h01] = 8'h01;       // Value: 0x01
+            rom_memory[8'h02] = 8'b01100000; // SHL
+            rom_memory[8'h03] = 8'b01100000; // SHL
+            rom_memory[8'h04] = 8'b01100000; // SHL
+            rom_memory[8'h05] = 8'b01100000; // SHL
+            rom_memory[8'h06] = 8'b01100000; // SHL
+            rom_memory[8'h07] = 8'b01100000; // SHL
+            rom_memory[8'h08] = 8'b01100000; // SHL
+            rom_memory[8'h09] = 8'b10000000; // JMP
+            rom_memory[8'h0A] = 8'h00;       // Address
+        end else begin
+            $display("Program loaded from src/program/knight_rider_two_way_borasm_LED1-LED4.hex");
+        end
 ```
-[BorASM](https://github.com/jwolak/BorASM)
+### Demo program (Terasic DE0-Nano Cyclone® IV EP4CE22F17C6N FPGA)
+
+[See source .asm file: `src/program/knight_rider_two_way_borasm_LED1-LED4.asm`](src/program/knight_rider_two_way_borasm_LED1-LED4.asm)
+
 ```
+MOV R0, #1  ;LOAD immediate value 1 to R0
+loop:
+SHL R0      ;(LED0->LED1)
+SHL R0      ;(LED1->LED2)
+SHL R0      ;(LED2->LED3)
+SHL R0      ;(LED3->LED4)
+SHR R0      ;(LED4->LED3)
+SHR R0      ;(LED3->LED2)
+SHR R0      ;(LED2->LED1)
+SHR R0      ;(LED1->LED0)
+JMP loop
+```
+
+[See output BorASM .hex file: `src/program/knight_rider_two_way_borasm_LED1-LED4.hex`](src/program/knight_rider_two_way_borasm_LED1-LED4.hex)
+```
+51
+01
+60
+60
+60
+60
+70
+70
+70
+70
+80
+02
+```
+
+[![SUB Operation Result](media/BorussCPU-Laibach-DE0NanoMini.PNG)](media/BorussCPU-Laibach-DE0Nano.mp4)
+
+Link: [See BorussCPU Demo program](media/BorussCPU-Laibach-DE0Nano.mp4)
+
 ### Control signals
 ```
     ┌─────────────────────────────────────────────────────────────────────────┐
@@ -100,3 +167,19 @@ BorussCPU "Laibach" is an experimental 8-bit RISC processor designed in Verilog.
     PC       ├─ 00h ─────────────────────────┤ 01h ─────────────────────────┤ 02h ────────
              │                               │                              │
 ```
+
+### Evironment
+```
+Software:
+Quartus Prime 22.1std Build 915 10/25/2022 SC Lite Edition
+
+Hardware:
+DE0-Nano FPGA Development and Education Kit [https://www.terasic.com.tw/cgi-bin/page/archive.pl?No=593]
+Cyclone® IV EP4CE22F17C6N FPGA
+```
+
+## License
+
+**BSD 3-Clause License**
+<br/>Copylefts 2025, Janusz Wolak
+<br/>No rights reserved
