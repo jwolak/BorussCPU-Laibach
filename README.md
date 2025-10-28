@@ -96,9 +96,9 @@ JMP loop
 02
 ```
 
-[![SUB Operation Result](media/BorussCPU-Laibach-DE0NanoMini.PNG)](media/BorussCPU-Laibach-DE0Nano.mp4)
+[![SUB Operation Result](media/BorussCPU-Laibach-DE0NanoMini.PNG)](media/BorussCPU-Laibach-DE0Nano.gif)
 
-Link: [See BorussCPU Demo program](media/BorussCPU-Laibach-DE0Nano.mp4)
+Link: [See BorussCPU Demo program](media/BorussCPU-Laibach-DE0Nano.gif)
 
 ### Control signals
 ```
