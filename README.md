@@ -8,7 +8,8 @@
 ```
 BorussCPU "Laibach" is an experimental 8-bit RISC processor designed in Verilog. 
 The project aims to demonstrate the complete process of CPU design, 
-from architecture and implementation to verification with unit, integration tests and a dedicated assembly compiler BorASM.
+from architecture and implementation to verification with unit, 
+integration tests and a dedicated assembly compiler BorASM.
 ```
 "BorASM" BorussCPU assembly compiler project link": [https://github.com/jwolak/BorASM](https://github.com/jwolak/BorASM)
 
@@ -30,7 +31,7 @@ from architecture and implementation to verification with unit, integration test
 - src/core/ – Main CPU modules (ALU, FSM, register file, etc.)
 - src/memory/ – ROM and RAM modules
 - src/testbench/ – Unit and integration testbenches
-- src/program/ - sources and .hex programs that can be loaded to ROM at start up (also built by BorASM)
+- src/program/ - sources and .hex that can be loaded to ROM at start up (also built by BorASM)
 ```
 
 ### Dedicated assembly compiler "BorASM"
