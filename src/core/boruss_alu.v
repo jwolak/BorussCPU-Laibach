@@ -52,7 +52,7 @@ module boruss_alu (
     output reg negative_flag
 );
     always @(*) begin
-        zero_flag = 1'b0;
+        reg[15:0] mul_result_16_bits;  // helper 16 bit var to keep multiplication result
         carry_flag = 1'b0;
         negative_flag = 1'b0;
         
@@ -86,6 +86,11 @@ module boruss_alu (
             8'b00001110: result = operand_b;             // JP - Jump if positive
             8'b00001111: begin                           // CMP - Comparison (sets flags)
                 {carry_flag, result} = operand_a - operand_b;
+            end
+            8'b00010000: begin                           // MUL (0x10, 8'd16)
+                mul_result_16_bits = operand_a * operand_b;
+                result = mul_result_16_bits[7:0];                       // write to output the low byte
+                carry_flag = (mul_result_16_bits[15:8] != 8'b00000000); // when high byte is non zero then set carry_flag
             end
 
             default: result = 8'b00000000;               // NOP
