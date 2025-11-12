@@ -84,8 +84,9 @@ module boruss_cpu (
     wire [7:0] fsm_pc;
     wire [7:0] fsm_instruction_addr;
     wire [7:0] current_instruction;
-    wire [3:0] opcode;
-    wire [1:0] dest_reg, src_reg;
+    wire [7:0] opcode;
+    wire [3:0] src_reg;
+    wire [3:0] dest_reg;
     wire execute_jump, update_registers, update_flags;
     wire [2:0] current_state;
     wire [7:0] immediate_value;
@@ -187,22 +188,23 @@ module boruss_cpu (
 
         // Map opcode to ALU operation code
         case (opcode)
-            4'b0000: alu_operation = 8'b00000000; // ADD
-            4'b0001: alu_operation = 8'b00000001; // SUB
-            4'b0010: alu_operation = 8'b00000010; // AND
-            4'b0011: alu_operation = 8'b00000011; // OR
-            4'b0100: alu_operation = 8'b00000100; // XOR
-            4'b0101: alu_operation = 8'b00000101; // NOT
-            4'b0110: alu_operation = 8'b00000110; // SHL
-            4'b0111: alu_operation = 8'b00000111; // SHR
-            4'b1000: alu_operation = 8'b00001000; // JMP
-            4'b1001: alu_operation = 8'b00001001; // JZ
-            4'b1010: alu_operation = 8'b00001010; // JNZ
-            4'b1011: alu_operation = 8'b00001011; // JC
-            4'b1100: alu_operation = 8'b00001100; // JNC
-            4'b1101: alu_operation = 8'b00001101; // JN
-            4'b1110: alu_operation = 8'b00001110; // JP
-            4'b1111: alu_operation = 8'b00001111; // CMP
+            8'b00000000: alu_operation = 8'b00000000; // ADD
+            8'b00000001: alu_operation = 8'b00000001; // SUB
+            8'b00000010: alu_operation = 8'b00000010; // AND
+            8'b00000011: alu_operation = 8'b00000011; // OR
+            8'b00000100: alu_operation = 8'b00000100; // XOR
+            8'b00000101: alu_operation = 8'b00000101; // NOT
+            8'b00000110: alu_operation = 8'b00000110; // SHL
+            8'b00000111: alu_operation = 8'b00000111; // SHR
+            8'b00001000: alu_operation = 8'b00001000; // JMP
+            8'b00001001: alu_operation = 8'b00001001; // JZ
+            8'b00001010: alu_operation = 8'b00001010; // JNZ
+            8'b00001011: alu_operation = 8'b00001011; // JC
+            8'b00001100: alu_operation = 8'b00001100; // JNC
+            8'b00001101: alu_operation = 8'b00001101; // JN
+            8'b00001110: alu_operation = 8'b00001110; // JP
+            8'b00001111: alu_operation = 8'b00001111; // CMP
+            8'b00010000: alu_operation = 8'b00010000; // MUL
             default: alu_operation = 8'b00000000; // Default to ADD
         endcase
     end
