@@ -52,27 +52,32 @@ module boruss_rom (
         end
 
         // Always try to load from file
-        $readmemh("src/program/knight_rider_two_way_borasm_LED1-LED4.hex", rom_memory);
+        //$readmemh("src/program/knight_rider_two_way_borasm_LED1-LED4.hex", rom_memory);
         $display("Program loaded from src/program/knight_rider_two_way_borasm_LED1-LED4.hex");
 
         // Check if the first byte is != 0 (program loaded correctly)
-        if (rom_memory[0] == 8'h00) begin
+        //if (rom_memory[0] == 8'h00) begin
             $display("No program file found, using built-in Knight Rider");
             // Default program
-            rom_memory[8'h00] = 8'b00000001; // LOAD immediate
-            rom_memory[8'h01] = 8'h01;       // Value: 0x01
-            rom_memory[8'h02] = 8'b01100000; // SHL
-            rom_memory[8'h03] = 8'b01100000; // SHL
-            rom_memory[8'h04] = 8'b01100000; // SHL
-            rom_memory[8'h05] = 8'b01100000; // SHL
-            rom_memory[8'h06] = 8'b01100000; // SHL
-            rom_memory[8'h07] = 8'b01100000; // SHL
-            rom_memory[8'h08] = 8'b01100000; // SHL
-            rom_memory[8'h09] = 8'b10000000; // JMP
-            rom_memory[8'h0A] = 8'h00;       // Address
-        end else begin
-            $display("Program loaded from src/program/knight_rider_two_way_borasm_LED1-LED4.hex");
-        end
+            // rom_memory[8'h00] = 8'b00000001; // LOAD immediate
+            // rom_memory[8'h01] = 8'h01;       // Value: 0x01
+            // rom_memory[8'h02] = 8'b01100000; // SHL
+            // rom_memory[8'h03] = 8'b01100000; // SHL
+            // rom_memory[8'h04] = 8'b01100000; // SHL
+            // rom_memory[8'h05] = 8'b01100000; // SHL
+            // rom_memory[8'h06] = 8'b01100000; // SHL
+            // rom_memory[8'h07] = 8'b01100000; // SHL
+            // rom_memory[8'h08] = 8'b01100000; // SHL
+            // rom_memory[8'h09] = 8'b10000000; // JMP
+            // rom_memory[8'h0A] = 8'h00;       // Address
+
+            // LOAD R0, #1 (LED1 on) - ADD R0, #1 (zakładając ADD jako LOAD)
+            rom_memory[8'h00] = 8'h80;  // ADD z immediate (bit 7=1, opcode=0x00)
+            rom_memory[8'h01] = 8'h01;  // immediate=1 (dest_reg=0, src_reg=1 ignorowany)
+
+       // end else begin
+       //     $display("Program loaded from src/program/knight_rider_two_way_borasm_LED1-LED4.hex");
+      //  end
     end
 
     // Read logic (combinational)

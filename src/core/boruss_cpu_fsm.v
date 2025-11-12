@@ -57,7 +57,7 @@ module boruss_cpu_fsm (
     output reg [7:0] pc,                    // program counter
     output reg [7:0] instruction_addr,      // address to fetch the next instruction from memory
     output reg [7:0] current_instruction,   // currently decoded instruction
-    output reg [7:0] opcode,                // opcode of the current instruction
+    output reg [6:0] opcode,                // opcode of the current instruction
     output reg [3:0] dest_reg,              // destination register for the current instruction
     output reg [3:0] src_reg,               // source register for the current instruction
     output reg execute_jump,                // signal to indicate a jump should be executed
@@ -100,7 +100,7 @@ module boruss_cpu_fsm (
             carry_flag <= 1'b0;
             negative_flag <= 1'b0;
             current_instruction <= 8'h00;
-            opcode <= 8'h0;
+            opcode <= 6'h0;
             dest_reg <= 4'b0;
             src_reg <= 4'b0;
             immediate_value <= 8'h00;
@@ -111,7 +111,7 @@ module boruss_cpu_fsm (
             // Update instruction in DECODE state
             if (current_state == DECODE) begin
                 current_instruction <= instruction_data;
-                opcode <= instruction_data;
+                opcode <= instruction_data[6:0];
             end
             
             //  save immediate value in FETCH_IMM state
@@ -148,10 +148,10 @@ module boruss_cpu_fsm (
             
             DECODE: begin
                 // Check if this is a HALT instruction
-                if (instruction_data == 8'hFF) begin
+                if (instruction_data[6:0] == 8'hFF) begin
                     next_state = HALT;
                 end else begin 
-                    if (instruction_data >= 8'h00 && instruction_data <= 8'h07 && instruction_data[7] == 1'b1) begin
+                    if (instruction_data[6:0] >= 7'h00 && instruction_data[6:0] <= 7'h07 && instruction_data[7] == 1'b1) begin
                         is_immediate = 1'b1;
                     end else begin
                         is_immediate = 1'b0;
@@ -176,11 +176,11 @@ module boruss_cpu_fsm (
                     update_flags = 1'b1;
                     
                     case (opcode)
-                        8'h08: begin // JMP - unconditional
+                        7'h08: begin // JMP - unconditional
                             next_pc = immediate_value;
                             execute_jump = 1'b1;
                         end
-                        8'h09: begin // JZ
+                        7'h09: begin // JZ
                             if (zero_flag) begin
                                 next_pc = immediate_value;
                                 execute_jump = 1'b1;
@@ -188,7 +188,7 @@ module boruss_cpu_fsm (
                                 next_pc = pc + 2;
                             end
                         end
-                        8'h0A: begin // JNZ
+                        7'h0A: begin // JNZ
                             if (!zero_flag) begin
                                 next_pc = immediate_value;
                                 execute_jump = 1'b1;
@@ -196,7 +196,7 @@ module boruss_cpu_fsm (
                                 next_pc = pc + 2;
                             end
                         end
-                        8'h0B: begin // JC
+                        7'h0B: begin // JC
                             if (carry_flag) begin
                                 next_pc = immediate_value;
                                 execute_jump = 1'b1;
@@ -204,7 +204,7 @@ module boruss_cpu_fsm (
                                 next_pc = pc + 2;
                             end
                         end
-                        8'h0C: begin // JNC
+                        7'h0C: begin // JNC
                             if (!carry_flag) begin
                                 next_pc = immediate_value;
                                 execute_jump = 1'b1;
@@ -212,7 +212,7 @@ module boruss_cpu_fsm (
                                 next_pc = pc + 2;
                             end
                         end
-                        8'h0D: begin // JN
+                        7'h0D: begin // JN
                             if (negative_flag) begin
                                 next_pc = immediate_value;
                                 execute_jump = 1'b1;
@@ -220,7 +220,7 @@ module boruss_cpu_fsm (
                                 next_pc = pc + 2;
                             end
                         end
-                        8'h0E: begin // JP
+                        7'h0E: begin // JP
                             if (!negative_flag) begin
                                 next_pc = immediate_value;
                                 execute_jump = 1'b1;
@@ -228,7 +228,7 @@ module boruss_cpu_fsm (
                                 next_pc = pc + 2;
                             end
                         end
-                        8'h0F: begin // CMP
+                        7'h0F: begin // CMP
                             next_pc = pc + 2;
                             update_flags = 1'b1;
                             update_registers = 1'b0;
