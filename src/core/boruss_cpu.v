@@ -168,10 +168,10 @@ module boruss_cpu (
 
         // Select operand A (source register)
         case (src_reg)
-            2'b00: alu_operand_a = reg_a;   // if src_reg is 0 then use reg_a
-            2'b01: alu_operand_a = reg_b;   // if src_reg is 1 then use reg_b
-            2'b10: alu_operand_a = reg_c;   // if src_reg is 2 then use reg_c
-            2'b11: alu_operand_a = reg_d;   // if src_reg is 3 then use reg_d
+            4'b0000: alu_operand_a = reg_a;   // if src_reg is 0 then use reg_a
+            4'b0001: alu_operand_a = reg_b;   // if src_reg is 1 then use reg_b
+            4'b0010: alu_operand_a = reg_c;   // if src_reg is 2 then use reg_c
+            4'b0011: alu_operand_a = reg_d;   // if src_reg is 3 then use reg_d
         endcase
 
         // Select operand B - immediate or register
@@ -179,10 +179,10 @@ module boruss_cpu (
             alu_operand_b = immediate_value; // use immediate value (instead to use value from register)
         end else begin
             case (dest_reg) // For register-register operations
-                2'b00: alu_operand_b = reg_a;   // if dest_reg is 0 then use reg_a
-                2'b01: alu_operand_b = reg_b;   // if dest_reg is 1 then use reg_b
-                2'b10: alu_operand_b = reg_c;   // if dest_reg is 2 then use reg_c
-                2'b11: alu_operand_b = reg_d;   // if dest_reg is 3 then use reg_d
+                4'b0000: alu_operand_b = reg_a;   // if dest_reg is 0 then use reg_a
+                4'b0001: alu_operand_b = reg_b;   // if dest_reg is 1 then use reg_b
+                4'b0010: alu_operand_b = reg_c;   // if dest_reg is 2 then use reg_c
+                4'b0011: alu_operand_b = reg_d;   // if dest_reg is 3 then use reg_d
             endcase
         end
 
@@ -219,10 +219,10 @@ module boruss_cpu (
         end else begin
             if (update_registers) begin // Update registers if enabled
                 case (dest_reg) // Select destination register
-                    2'b00: reg_a <= is_immediate ? immediate_value : alu_result;    // if immediate mode use immediate value else use ALU result
-                    2'b01: reg_b <= is_immediate ? immediate_value : alu_result;
-                    2'b10: reg_c <= is_immediate ? immediate_value : alu_result;
-                    2'b11: reg_d <= is_immediate ? immediate_value : alu_result;
+                    4'b0000: reg_a <= is_immediate ? immediate_value : alu_result;    // if immediate mode use immediate value else use ALU result
+                    4'b0001: reg_b <= is_immediate ? immediate_value : alu_result;
+                    4'b0010: reg_c <= is_immediate ? immediate_value : alu_result;
+                    4'b0011: reg_d <= is_immediate ? immediate_value : alu_result;
                 endcase
             end
         end
