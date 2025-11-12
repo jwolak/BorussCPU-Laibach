@@ -104,7 +104,6 @@ module boruss_cpu_fsm (
             dest_reg <= 4'b0;
             src_reg <= 4'b0;
             immediate_value <= 8'h00;
-            is_immediate <= 1'b0;
         end else begin
             current_state <= next_state;
             pc <= next_pc;
@@ -117,10 +116,9 @@ module boruss_cpu_fsm (
             
             //  save immediate value in FETCH_IMM state
             if (current_state == FETCH_IMM) begin
-                dest_reg <= instruction_data[7:4]
-                src_reg <= instruction_data[3:0]
+                dest_reg <= instruction_data[7:4];
+                src_reg <= instruction_data[3:0];
                 immediate_value <= instruction_data;
-                is_immediate <= 1'b1;
             end
 
             // Update flags in WRITEBACK state
@@ -140,6 +138,7 @@ module boruss_cpu_fsm (
         execute_jump = 1'b0;
         update_registers = 1'b0;
         update_flags = 1'b0;
+        is_immediate = 1'b0;
         
         case (current_state)
             FETCH: begin
@@ -153,9 +152,9 @@ module boruss_cpu_fsm (
                     next_state = HALT;
                 end else begin 
                     if (instruction_data >= 8'h00 && instruction_data <= 8'h07 && instruction_data[7] == 1'b1) begin
-                        is_immediate <= 1'b1;
+                        is_immediate = 1'b1;
                     end else begin
-                        is_immediate <= 1'b0;
+                        is_immediate = 1'b0;
                     end
                     next_state = FETCH_IMM; // Get jump address
                 end
