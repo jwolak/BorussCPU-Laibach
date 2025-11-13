@@ -112,12 +112,12 @@ module boruss_cpu_fsm (
             if (current_state == DECODE) begin
                 current_instruction <= instruction_data;
                 opcode <= instruction_data[6:0];
+                dest_reg <= instruction_data[7:4];
+                src_reg <= instruction_data[3:0];
             end
             
             //  save immediate value in FETCH_IMM state
             if (current_state == FETCH_IMM) begin
-                dest_reg <= instruction_data[7:4];
-                src_reg <= instruction_data[3:0];
                 immediate_value <= instruction_data;
             end
 
@@ -172,7 +172,7 @@ module boruss_cpu_fsm (
             
             WRITEBACK: begin
                 // Handle jumps
-                if (opcode >= 8'h08 && opcode <= 8'h0E) begin
+                if (opcode >= 7'h08 && opcode <= 7'h0E) begin
                     update_flags = 1'b1;
                     
                     case (opcode)

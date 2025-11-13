@@ -107,7 +107,7 @@ module boruss_cpu (
     assign debug_reg_d = reg_d;
 
     // LED Output - Displays the value of register A on the LEDs for visual debugging
-    assign led_out = reg_a;
+    assign led_out = reg_a;//current_instruction;
 
     // memory controller instance
     boruss_memory_controller memory_ctrl (

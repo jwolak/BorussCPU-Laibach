@@ -75,6 +75,9 @@ module boruss_rom (
             rom_memory[8'h00] = 8'h80;  // ADD z immediate (bit 7=1, opcode=0x00)
             rom_memory[8'h01] = 8'h01;  // immediate=1 (dest_reg=0, src_reg=1 ignorowany)
 
+            rom_memory[8'h0E] = 8'h08;  // JMP (poprawione z 8'h06)
+            rom_memory[8'h0F] = 8'h00;  // Adres = 0x00
+
        // end else begin
        //     $display("Program loaded from src/program/knight_rider_two_way_borasm_LED1-LED4.hex");
       //  end
