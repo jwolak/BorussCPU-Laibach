@@ -62,11 +62,15 @@ module boruss_cpu (
     reg [25:0] clk_divider;
     reg slow_clk;
     
-    always @(posedge clk) begin
-        clk_divider <= clk_divider + 1;
-        slow_clk <= clk_divider[20]; // ~24Hz
+    always @(posedge clk or negedge reset) begin
+        if (!reset) begin
+            clk_divider <= 26'h0;
+            slow_clk <= 1'b0;
+        end else begin
+            clk_divider <= clk_divider + 1;
+            slow_clk <= clk_divider[20]; // Zmień na [5] dla symulacji testowej
+        end
     end
-
 
     // CPU registers
     reg [7:0] reg_a, reg_b, reg_c, reg_d;
@@ -167,22 +171,22 @@ module boruss_cpu (
         memory_read_enable = 1'b0;
 
         // Select operand A (source register)
-        case (src_reg)
-            4'b0000: alu_operand_a = reg_a;   // if src_reg is 0 then use reg_a
-            4'b0001: alu_operand_a = reg_b;   // if src_reg is 1 then use reg_b
-            4'b0010: alu_operand_a = reg_c;   // if src_reg is 2 then use reg_c
-            4'b0011: alu_operand_a = reg_d;   // if src_reg is 3 then use reg_d
+        case (dest_reg)
+            4'b0000: alu_operand_a = reg_a;   // if dest_reg is 0 then use reg_a
+            4'b0001: alu_operand_a = reg_b;   // if dest_reg is 1 then use reg_b
+            4'b0010: alu_operand_a = reg_c;   // if dest_reg is 2 then use reg_c
+            4'b0011: alu_operand_a = reg_d;   // if dest_reg is 3 then use reg_d
         endcase
 
         // Select operand B - immediate or register
         if (is_immediate) begin
             alu_operand_b = immediate_value; // use immediate value (instead to use value from register)
         end else begin
-            case (dest_reg) // For register-register operations
-                4'b0000: alu_operand_b = reg_a;   // if dest_reg is 0 then use reg_a
-                4'b0001: alu_operand_b = reg_b;   // if dest_reg is 1 then use reg_b
-                4'b0010: alu_operand_b = reg_c;   // if dest_reg is 2 then use reg_c
-                4'b0011: alu_operand_b = reg_d;   // if dest_reg is 3 then use reg_d
+            case (src_reg) // For register-register operations
+                4'b0000: alu_operand_b = reg_a;   // if src_reg is 0 then use reg_a
+                4'b0001: alu_operand_b = reg_b;   // if src_reg is 1 then use reg_b
+                4'b0010: alu_operand_b = reg_c;   // if src_reg is 2 then use reg_c
+                4'b0011: alu_operand_b = reg_d;   // if src_reg is 3 then use reg_d
             endcase
         end
 

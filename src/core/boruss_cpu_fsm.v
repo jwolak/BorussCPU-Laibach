@@ -100,10 +100,11 @@ module boruss_cpu_fsm (
             carry_flag <= 1'b0;
             negative_flag <= 1'b0;
             current_instruction <= 8'h00;
-            opcode <= 6'h0;
+            opcode <= 7'h0;
             dest_reg <= 4'b0;
             src_reg <= 4'b0;
             immediate_value <= 8'h00;
+            is_immediate <= 1'b0;
         end else begin
             current_state <= next_state;
             pc <= next_pc;
@@ -111,12 +112,22 @@ module boruss_cpu_fsm (
             // Update instruction in DECODE state
             if (current_state == DECODE) begin
                 current_instruction <= instruction_data;
-                opcode <= instruction_data[6:0];
-                dest_reg <= instruction_data[7:4];
-                src_reg <= instruction_data[3:0];
+                
+                // Check if immediate mode (bit 7 = 1)
+                if (instruction_data[7] == 1'b1) begin
+                    is_immediate <= 1'b1;
+                    opcode <= instruction_data[6:0];      // Bity 6-0 to opcode
+                    dest_reg <= instruction_data[3:0];    // Bity 3-0 to dest_reg (dla immediate)
+                    src_reg <= 4'b0000;                   // src_reg nie używany w trybie immediate
+                end else begin
+                    is_immediate <= 1'b0;
+                    opcode <= instruction_data[6:0];      // Bity 6-0 to opcode
+                    dest_reg <= instruction_data[3:0];    // Dolne 4 bity dla dest_reg
+                    src_reg <= instruction_data[7:4];     // Górne 4 bity dla src_reg (błąd: powinno być odwrotnie?)
+                end
             end
             
-            //  save immediate value in FETCH_IMM state
+            // Save immediate value in FETCH_IMM state
             if (current_state == FETCH_IMM) begin
                 immediate_value <= instruction_data;
             end
@@ -130,7 +141,7 @@ module boruss_cpu_fsm (
         end
     end
 
-    // state machine - combinational logic
+        // state machine - combinational logic
     always @(*) begin
         next_state = current_state;
         next_pc = pc;
@@ -138,7 +149,6 @@ module boruss_cpu_fsm (
         execute_jump = 1'b0;
         update_registers = 1'b0;
         update_flags = 1'b0;
-        is_immediate = 1'b0;
         
         case (current_state)
             FETCH: begin
@@ -148,15 +158,17 @@ module boruss_cpu_fsm (
             
             DECODE: begin
                 // Check if this is a HALT instruction
-                if (instruction_data[6:0] == 8'hFF) begin
+                if (instruction_data[6:0] == 7'h7F) begin  // Zmienione z 8'hFF na 7'h7F
                     next_state = HALT;
-                end else begin 
-                    if (instruction_data[6:0] >= 7'h00 && instruction_data[6:0] <= 7'h07 && instruction_data[7] == 1'b1) begin
-                        is_immediate = 1'b1;
+                end else begin
+                    // Sprawdź czy instrukcja wymaga immediate value
+                    // Instrukcje ALU (0x00-0x07) lub JMP (0x08-0x0E) mogą mieć immediate
+                    if (instruction_data[7] == 1'b1 || 
+                        (instruction_data[6:0] >= 7'h08 && instruction_data[6:0] <= 7'h0E)) begin
+                        next_state = FETCH_IMM;
                     end else begin
-                        is_immediate = 1'b0;
+                        next_state = EXECUTE;
                     end
-                    next_state = FETCH_IMM; // Get jump address
                 end
             end
 
@@ -228,20 +240,23 @@ module boruss_cpu_fsm (
                                 next_pc = pc + 2;
                             end
                         end
-                        7'h0F: begin // CMP
+                        default: begin
                             next_pc = pc + 2;
-                            update_flags = 1'b1;
-                            update_registers = 1'b0;
                         end
                     endcase
+                // CMP instruction
+                end else if (opcode == 7'h0F) begin
+                    next_pc = pc + 1;  // CMP jest 1-bajtowa (bez immediate)
+                    update_flags = 1'b1;
+                    update_registers = 1'b0;
                 // Instructions with immediate value
                 end else if (is_immediate) begin
                     next_pc = pc + 2; // 2-byte instruction
                     update_registers = 1'b1;
                     update_flags = 1'b0; // Immediate does not change flags
-                // Standard ALU instructions
+                // Standard ALU instructions (register-register)
                 end else begin
-                    next_pc = pc + 2; // 2-byte instruction
+                    next_pc = pc + 1; // 1-byte instruction (nie ma immediate)
                     update_registers = 1'b1;
                     update_flags = 1'b1;
                 end

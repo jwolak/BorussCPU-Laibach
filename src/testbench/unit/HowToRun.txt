@@ -1,2 +1,4 @@
 
 vsim -do test_alu.do
+
+vsim -do detailed_bench.do
