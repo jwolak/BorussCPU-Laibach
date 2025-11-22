@@ -1,0 +1,2 @@
+
+vsim -do test_alu.do
