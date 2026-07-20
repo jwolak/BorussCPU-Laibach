@@ -36,26 +36,25 @@
 #
 # -------------------------------------------------------------------------- #
 
-# Device settings for Terasic DE0-Nano
-set_global_assignment -name FAMILY "Cyclone IV E"
-set_global_assignment -name DEVICE EP4CE22F17C6
+# Device settings for Terasic DE0-CV
+set_global_assignment -name FAMILY "Cyclone V"
+set_global_assignment -name DEVICE 5CEBA4F23C7
 set_global_assignment -name TOP_LEVEL_ENTITY "boruss_cpu"
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 22.1STD.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "16:24:06  OCTOBER 08, 2025"
-set_global_assignment -name LAST_QUARTUS_VERSION "22.1std.0 Lite Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
 set_global_assignment -name VERILOG_FILE src/memory/boruss_rom.v
 set_global_assignment -name VERILOG_FILE src/memory/boruss_ram.v
 set_global_assignment -name VERILOG_FILE src/memory/boruss_memory_controller.v
 set_global_assignment -name VERILOG_FILE src/core/boruss_cpu_fsm.v
 set_global_assignment -name VERILOG_FILE src/core/boruss_cpu.v
 set_global_assignment -name VERILOG_FILE src/core/boruss_alu.v
+set_global_assignment -name VERILOG_FILE src/peripherals/boruss_uart.v
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 256
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
-set_global_assignment -name EDA_SIMULATION_TOOL "Questa Intel FPGA (Verilog)"
-set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
-set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "VERILOG HDL" -section_id eda_simulation
+set_global_assignment -name EDA_SIMULATION_TOOL "<None>"
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_timing
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_symbol
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_signal_integrity
@@ -64,23 +63,29 @@ set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 
-# Clock assignment (50MHz clock on DE0-Nano) - POPRAWNY
-set_location_assignment PIN_R8 -to clk
+# Clock assignment (50MHz clock on DE0-CV)
+set_location_assignment PIN_M9 -to clk
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk
 
-# Reset button (KEY0 on DE0-Nano) - POPRAWNY  
-set_location_assignment PIN_J15 -to reset
+# Reset button (KEY0 on DE0-CV)
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to reset
 
-# POPRAWNE LED assignments for Terasic DE0-Nano (8 LEDs)
-set_location_assignment PIN_A15 -to led_out[0]
-set_location_assignment PIN_A13 -to led_out[1]
-set_location_assignment PIN_B13 -to led_out[2]
-set_location_assignment PIN_A11 -to led_out[3]
-set_location_assignment PIN_D1 -to led_out[4]
-set_location_assignment PIN_F3 -to led_out[5]
-set_location_assignment PIN_B1 -to led_out[6]
-set_location_assignment PIN_L3 -to led_out[7]
+# LED assignments for Terasic DE0-CV (LEDR[7:0])
+set_location_assignment PIN_AA2 -to led_out[0]
+set_location_assignment PIN_AA1 -to led_out[1]
+set_location_assignment PIN_W2 -to led_out[2]
+set_location_assignment PIN_Y3 -to led_out[3]
+set_location_assignment PIN_N2 -to led_out[4]
+set_location_assignment PIN_N1 -to led_out[5]
+set_location_assignment PIN_U2 -to led_out[6]
+set_location_assignment PIN_U1 -to led_out[7]
+
+# UART assignments (GPIO JP1 header on DE0-Nano)
+# VERIFIED ON HARDWARE:
+# JP1 Pin 2 = UART TX
+# JP1 Pin 4 = UART RX
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to uart_tx
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to uart_rx
 
 # I/O Standard for LEDs
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led_out[0]
