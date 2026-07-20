@@ -119,6 +119,56 @@ JMP loop
 
 Link: [See BorussCPU Demo program](media/BorussCPU-Laibach-DE0Nano.mp4)
 
+### Demo program (Terasic DE0-CV Cyclone V FPGA)
+
+<img src="media/BorussCPU-Laibach-DE0-CV.JPEG" alt="BorussCPU Laibach DE0-CV board" width="420" />
+
+![BorussCPU Laibach DE0-CV Demo](media/BorussCpu-DE0-CV.gif)
+
+[See demo video](media/BorussCpu-DE0-CV.mp4)
+
+The loaded program is a Knight Rider variant for LED0-LED6. The assembly source is in [src/program/knight_rider_two_way_borasm_LED0-LED6.asm](src/program/knight_rider_two_way_borasm_LED0-LED6.asm), and the generated HEX file is in [src/program/knight_rider_de0_cv_LED0_LED6.hex](src/program/knight_rider_de0_cv_LED0_LED6.hex).
+
+[See source .asm file: `src/program/knight_rider_two_way_borasm_LED0-LED6.asm`](src/program/knight_rider_two_way_borasm_LED0-LED6.asm)
+
+```
+MOV R0, #1  ;LOAD immediate value 1 to R0
+loop:
+SHL R0      ;(LED0->LED1)
+SHL R0      ;(LED1->LED2)
+SHL R0      ;(LED2->LED3)
+SHL R0      ;(LED3->LED4)
+SHL R0      ;(LED4->LED5)
+SHL R0      ;(LED5->LED6)
+SHR R0      ;(LED6->LED5)
+SHR R0      ;(LED5->LED4)
+SHR R0      ;(LED4->LED3)
+SHR R0      ;(LED3->LED2)
+SHR R0      ;(LED2->LED1)
+SHR R0      ;(LED1->LED0)
+JMP loop
+```
+
+[See output BorASM .hex file: `src/program/knight_rider_de0_cv_LED0_LED6.hex`](src/program/knight_rider_de0_cv_LED0_LED6.hex)
+```
+51
+01
+60
+60
+60
+60
+60
+60
+70
+70
+70
+70
+70
+70
+80
+02
+```
+
 ### Control signals
 ```
     ┌─────────────────────────────────────────────────────────────────────────┐
