@@ -35,36 +35,28 @@
  *
  */
 
-//==============================================================================
-// Module: boruss_memory_controller
-// Description: Memory controller module for the Boruss CPU architecture.
-//              Handles memory access operations, address decoding, and 
-//              interfacing between the CPU and various memory subsystems.
-//              Provides centralized control for memory read/write operations,
-//              cache management, and memory mapped I/O access.
-//==============================================================================
 module boruss_memory_controller (
     input clk,
     input reset,
-    
+
     // CPU interface for instructions
     input [7:0] instruction_address,  // Address for instruction fetch
     output [7:0] instruction_data,    // Instruction data output
-    
+
     // CPU interface for data
     input [7:0] data_address,        // Address for data access
     input [7:0] data_in,             // Data input for writes
     input data_write_enable,         // Write enable signal
     input data_read_enable,          // Read enable signal
     output [7:0] data_out,           // Data output
-    
+
     // Memory mapping control
     input memory_map_select  // 0=ROM, 1=RAM
 );
 
     // Internal signals for ROM
     wire [7:0] rom_data_out;    // Instruction data from ROM
-    
+
     // Internal signals for RAM
     wire [7:0] ram_data_out;    // Data output from RAM
     reg ram_write_enable;       // RAM write enable
@@ -86,7 +78,7 @@ module boruss_memory_controller (
         .read_enable(ram_read_enable),   // Read enable
         .data_out(ram_data_out)          // Data output
     );
-    
+
     // Memory mapping logic
     always @(*) begin
         // Default values
@@ -98,7 +90,7 @@ module boruss_memory_controller (
             ram_read_enable = data_read_enable;     // Enable RAM read if CPU requests it
         end
     end
-    
+
     // Data output multiplexer
     assign data_out = memory_map_select ? ram_data_out : rom_data_out; // Select data from RAM or ROM based on mapping
 endmodule

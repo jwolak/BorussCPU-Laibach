@@ -47,10 +47,10 @@ module boruss_ram (
 
     // RAM memory 256 bytes (8-bit addresses)
     reg [7:0] memory [255:0];
-    
+
     // memory initialization
     integer i;
-    
+
     // Combined reset/read/write logic in one block
     always @(posedge clk or posedge reset) begin
         if (reset) begin
