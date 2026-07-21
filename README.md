@@ -7,10 +7,10 @@
 | $$__  $$| $$  \ $$| $$  \__/| $$  | $$|  $$$$$$|  $$$$$$ | $$      | $$____/ | $$  | $$
 | $$  \ $$| $$  | $$| $$      | $$  | $$ \____  $$\____  $$| $$    $$| $$      | $$  | $$
 | $$$$$$$/|  $$$$$$/| $$      |  $$$$$$/ /$$$$$$$//$$$$$$$/|  $$$$$$/| $$      |  $$$$$$/
-|_______/  \______/ |__/       \______/ |_______/|_______/  \______/ |__/       \______/ 
-                                                                                         
-                                                                                         
-                                                                                         
+|_______/  \______/ |__/       \______/ |_______/|_______/  \______/ |__/       \______/
+
+
+
 ```
 ```
 "Boruss CPU" is an experimental 8 bits RISC CPU with code name "Laibach"
@@ -19,9 +19,9 @@
 ## Project description
 
 ```
-BorussCPU "Laibach" is an experimental 8-bit RISC processor designed in Verilog. 
-The project aims to demonstrate the complete process of CPU design, 
-from architecture and implementation to verification with unit, 
+BorussCPU "Laibach" is an experimental 8-bit RISC processor designed in Verilog.
+The project aims to demonstrate the complete process of CPU design,
+from architecture and implementation to verification with unit,
 integration tests and a dedicated assembly compiler BorASM.
 ```
 "BorASM" BorussCPU assembly compiler project link": [https://github.com/jwolak/BorASM](https://github.com/jwolak/BorASM)
@@ -30,7 +30,7 @@ integration tests and a dedicated assembly compiler BorASM.
 ```
 - 8-bit RISC architecture
 - Four general-purpose 8-bit registers (reg_a, reg_b, reg_c, reg_d)
-- ALU supporting arithmetic and logical operations: 
+- ALU supporting arithmetic and logical operations:
   ADD, SUB, AND, OR, XOR, NOT, SHL, SHR, JMP, JZ, JNZ, JC, JNC, JN, JP, CMP
 - Separate ROM (program) and RAM (data) memory blocks
 - FSM-based control unit with states: FETCH, DECODE, EXECUTE, WRITEBACK, FETCH_IMM, HALT
@@ -50,6 +50,87 @@ integration tests and a dedicated assembly compiler BorASM.
 ### Dedicated assembly compiler "BorASM"
 
 Visit: [https://github.com/jwolak/BorASM](https://github.com/jwolak/BorASM)
+
+### Instruction format
+```
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │                                                                         │
+    │  1-byte instructions:                                                   │
+    │  [4-bit opcode][2-bit dest_reg][2-bit src_reg]                          │
+    │                                                                         │
+    │  2-byte instructions (with immediate):                                  │
+    │  [4-bit opcode][4-bit modifier] [8-bit immediate/address]               │
+    │                                                                         │
+    │  Special:                                                               │
+    │  HALT = 0xFF                                                            │
+    └─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Instruction encoding details
+
+Bit layout for 1-byte register form:
+
+| Bit range | Field | Meaning |
+| --- | --- | --- |
+| [7:4] | opcode | Operation code |
+| [3:2] | dest_reg | Destination register |
+| [1:0] | src_reg | Source register |
+
+Register encoding:
+
+| Reg bits | Register |
+| --- | --- |
+| 00 | R0 (reg_a) |
+| 01 | R1 (reg_b) |
+| 10 | R2 (reg_c) |
+| 11 | R3 (reg_d) |
+
+Immediate and jump encoding:
+
+| Type | Byte 0 | Byte 1 |
+| --- | --- | --- |
+| ALU immediate (opcode 0x0-0x7) | [opcode][modifier != 0] | immediate value |
+| Jump (opcode 0x8-0xE) | [opcode][modifier] | target address |
+
+Examples:
+
+| Bytes | Decoding |
+| --- | --- |
+| 0x60 | SHL, register form |
+| 0x51 0x01 | Opcode 0x5 with immediate value 0x01 (MOV-style immediate load in current programs) |
+| 0x80 0x02 | JMP 0x02 |
+| 0xFF | HALT (special case, decoded before normal opcode handling) |
+
+### Supported opcodes
+
+| Opcode (bin) | Opcode (hex) | Mnemonic | Description |
+| --- | --- | --- | --- |
+| 0000 | 0x0 | ADD | Add source and destination registers |
+| 0001 | 0x1 | SUB | Subtract source from destination |
+| 0010 | 0x2 | AND | Bitwise AND |
+| 0011 | 0x3 | OR | Bitwise OR |
+| 0100 | 0x4 | XOR | Bitwise XOR |
+| 0101 | 0x5 | NOT | Bitwise NOT |
+| 0110 | 0x6 | SHL | Shift left |
+| 0111 | 0x7 | SHR | Shift right |
+| 1000 | 0x8 | JMP | Unconditional jump (2-byte instruction) |
+| 1001 | 0x9 | JZ | Jump if zero flag is set (2-byte instruction) |
+| 1010 | 0xA | JNZ | Jump if zero flag is clear (2-byte instruction) |
+| 1011 | 0xB | JC | Jump if carry flag is set (2-byte instruction) |
+| 1100 | 0xC | JNC | Jump if carry flag is clear (2-byte instruction) |
+| 1101 | 0xD | JN | Jump if negative flag is set (2-byte instruction) |
+| 1110 | 0xE | JP | Jump if negative flag is clear (2-byte instruction) |
+| 1111 | 0xF | CMP | Compare values and update flags |
+
+Special encoding:
+
+| Byte value | Meaning |
+| --- | --- |
+| 0xFF | HALT |
+
+Immediate mode note:
+
+- For opcodes 0x0-0x7, when the low nibble is non-zero, the instruction is treated as a 2-byte immediate form and the second byte is written to the destination register.
 
 ## Example program in ROM
 
@@ -127,6 +208,9 @@ Link: [See BorussCPU Demo program](media/BorussCPU-Laibach-DE0Nano.mp4)
 
 [See demo video](media/BorussCpu-DE0-CV.mp4)
 
+UART (DE0-CV):
+- TxD (uart_tx) is assigned to PIN_T17.
+
 The loaded program is a Knight Rider variant for LED0-LED6. The assembly source is in [src/program/knight_rider_two_way_borasm_LED0-LED6.asm](src/program/knight_rider_two_way_borasm_LED0-LED6.asm), and the generated HEX file is in [src/program/knight_rider_de0_cv_LED0_LED6.hex](src/program/knight_rider_de0_cv_LED0_LED6.hex).
 
 [See source .asm file: `src/program/knight_rider_two_way_borasm_LED0-LED6.asm`](src/program/knight_rider_two_way_borasm_LED0-LED6.asm)
@@ -186,20 +270,6 @@ JMP loop
     │  • alu_result            • zero_flag                                    │
     │                          • carry_flag                                   │
     │                          • negative_flag                                │
-    └─────────────────────────────────────────────────────────────────────────┘
-```
-### Instruction format
-```
-    ┌─────────────────────────────────────────────────────────────────────────┐
-    │                                                                         │
-    │  1-byte instructions:                                                   │
-    │  [4-bit opcode][2-bit dest_reg][2-bit src_reg]                          │
-    │                                                                         │
-    │  2-byte instructions (with immediate):                                  │
-    │  [4-bit opcode][4-bit modifier] [8-bit immediate/address]               │
-    │                                                                         │
-    │  Special:                                                               │
-    │  HALT = 0xFF                                                            │
     └─────────────────────────────────────────────────────────────────────────┘
 ```
 ### ALU flags
