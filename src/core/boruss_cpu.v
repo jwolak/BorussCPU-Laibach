@@ -42,12 +42,20 @@ module boruss_cpu (
     output [7:0] debug_reg_d,           // Debug Register D - Contents of general purpose register D for debugging purposes
 
     // LED Output - Displays the value of register A on the LEDs for visual debugging
-    output [7:0] led_out
+    output [7:0] led_out,
+    output uart_tx,
+    input uart_rx
 );
 
     // Clock divider to slow down the clock for visible LED changes
     reg [25:0] clk_divider;
     reg slow_clk;
+
+    reg [7:0] led_shadow;
+    reg [7:0] uart_data;
+    reg uart_data_valid;
+    reg uart_pending;
+    wire uart_busy;
 
     always @(posedge clk) begin
         clk_divider <= clk_divider + 1;
@@ -93,6 +101,9 @@ module boruss_cpu (
 
     // LED Output - Displays the value of register A on the LEDs for visual debugging
     assign led_out = reg_a;
+
+    wire uart_rx_unused;
+    assign uart_rx_unused = uart_rx;
 
     // memory controller instance
     boruss_memory_controller memory_ctrl (
@@ -140,6 +151,15 @@ module boruss_cpu (
         .zero_flag(alu_zero_flag),
         .carry_flag(alu_carry_flag),
         .negative_flag(alu_negative_flag)
+    );
+
+    boruss_uart uart_inst (
+        .clk(clk),
+        .reset_n(reset),
+        .data_in(uart_data),
+        .data_valid(uart_data_valid),
+        .tx(uart_tx),
+        .busy(uart_busy)
     );
 
     // ALU operand preparation logic
@@ -208,6 +228,28 @@ module boruss_cpu (
                     2'b10: reg_c <= is_immediate ? immediate_value : alu_result;
                     2'b11: reg_d <= is_immediate ? immediate_value : alu_result;
                 endcase
+            end
+        end
+    end
+
+    always @(posedge clk or negedge reset) begin
+        if (!reset) begin
+            led_shadow <= 8'h00;
+            uart_data <= 8'h00;
+            uart_data_valid <= 1'b0;
+            uart_pending <= 1'b0;
+        end else begin
+            uart_data_valid <= 1'b0;
+
+            if (led_out != led_shadow) begin
+                led_shadow <= led_out;
+                uart_data <= led_out;
+                uart_pending <= 1'b1;
+            end
+
+            if (uart_pending && !uart_busy) begin
+                uart_data_valid <= 1'b1;
+                uart_pending <= 1'b0;
             end
         end
     end
