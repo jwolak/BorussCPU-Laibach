@@ -1,8 +1,3 @@
-/*
- *  Created on: 2025
- *      Author: Janusz Wolak
- */
-
 /*-
  * BSD 3-Clause License
  *
@@ -35,14 +30,6 @@
  *
  */
 
-//==============================================================================
-// Module: boruss_cpu
-// Description: Main CPU core module for the Boruss processor architecture.
-//              Implements the central processing unit with instruction fetch,
-//              decode, execute, and writeback stages. Handles instruction
-//              execution, register file management, and memory interface
-//              coordination.
-//==============================================================================
 module boruss_cpu (
     input clk,
     input reset,
@@ -53,20 +40,27 @@ module boruss_cpu (
     output [7:0] debug_reg_b,           // Debug Register B - Contents of general purpose register B for debugging purposes
     output [7:0] debug_reg_c,           // Debug Register C - Contents of general purpose register C for debugging purposes
     output [7:0] debug_reg_d,           // Debug Register D - Contents of general purpose register D for debugging purposes
-    
+
     // LED Output - Displays the value of register A on the LEDs for visual debugging
-    output [7:0] led_out
+    output [7:0] led_out,
+    output uart_tx,
+    input uart_rx
 );
 
     // Clock divider to slow down the clock for visible LED changes
     reg [25:0] clk_divider;
     reg slow_clk;
-    
+
+    reg [7:0] led_shadow;
+    reg [7:0] uart_data;
+    reg uart_data_valid;
+    reg uart_pending;
+    wire uart_busy;
+
     always @(posedge clk) begin
         clk_divider <= clk_divider + 1;
         slow_clk <= clk_divider[20]; // ~24Hz
     end
-
 
     // CPU registers
     reg [7:0] reg_a, reg_b, reg_c, reg_d;
@@ -90,12 +84,12 @@ module boruss_cpu (
     wire [2:0] current_state;
     wire [7:0] immediate_value;
     wire is_immediate;
-    
+
     // ALU signals
     reg [7:0] alu_operand_a, alu_operand_b, alu_operation;
     wire [7:0] alu_result;
     wire alu_zero_flag, alu_carry_flag, alu_negative_flag;
-    
+
     // Output assignments
     assign pc = fsm_pc;
     assign instruction_addr = fsm_instruction_addr;
@@ -107,6 +101,9 @@ module boruss_cpu (
 
     // LED Output - Displays the value of register A on the LEDs for visual debugging
     assign led_out = reg_a;
+
+    wire uart_rx_unused;
+    assign uart_rx_unused = uart_rx;
 
     // memory controller instance
     boruss_memory_controller memory_ctrl (
@@ -121,7 +118,7 @@ module boruss_cpu (
         .data_out(memory_data_out),
         .memory_map_select(memory_map_select)
     );
-    
+
     // FSM instance
     boruss_cpu_fsm fsm_inst (
         .clk(slow_clk),
@@ -142,7 +139,7 @@ module boruss_cpu (
         .update_registers(update_registers),
         .update_flags(update_flags),
         .immediate_value_out(immediate_value),
-        .is_immediate_out(is_immediate)       
+        .is_immediate_out(is_immediate)
     );
 
     // ALU instance
@@ -154,6 +151,15 @@ module boruss_cpu (
         .zero_flag(alu_zero_flag),
         .carry_flag(alu_carry_flag),
         .negative_flag(alu_negative_flag)
+    );
+
+    boruss_uart uart_inst (
+        .clk(clk),
+        .reset_n(reset),
+        .data_in(uart_data),
+        .data_valid(uart_data_valid),
+        .tx(uart_tx),
+        .busy(uart_busy)
     );
 
     // ALU operand preparation logic
@@ -222,6 +228,28 @@ module boruss_cpu (
                     2'b10: reg_c <= is_immediate ? immediate_value : alu_result;
                     2'b11: reg_d <= is_immediate ? immediate_value : alu_result;
                 endcase
+            end
+        end
+    end
+
+    always @(posedge clk or negedge reset) begin
+        if (!reset) begin
+            led_shadow <= 8'h00;
+            uart_data <= 8'h00;
+            uart_data_valid <= 1'b0;
+            uart_pending <= 1'b0;
+        end else begin
+            uart_data_valid <= 1'b0;
+
+            if (led_out != led_shadow) begin
+                led_shadow <= led_out;
+                uart_data <= led_out;
+                uart_pending <= 1'b1;
+            end
+
+            if (uart_pending && !uart_busy) begin
+                uart_data_valid <= 1'b1;
+                uart_pending <= 1'b0;
             end
         end
     end

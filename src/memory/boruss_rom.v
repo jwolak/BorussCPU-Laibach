@@ -1,8 +1,3 @@
-/*
- *  Created on: 2025
- *      Author: Janusz Wolak
- */
-
 /*-
  * BSD 3-Clause License
  *
@@ -42,7 +37,7 @@ module boruss_rom (
 
     // ROM memory 256 bytes with LED Knight Rider program
     reg [7:0] rom_memory [255:0];
-        
+
     // ROM initialization with Knight Rider program
     integer i;
     initial begin

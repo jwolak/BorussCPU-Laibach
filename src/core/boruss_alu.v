@@ -1,8 +1,3 @@
-/*
- *  Created on: 2025
- *      Author: Janusz Wolak
- */
-
 /*-
  * BSD 3-Clause License
  *
@@ -35,13 +30,6 @@
  *
  */
 
-//===========================================================================================
-// Module Name:     boruss_alu
-// Description:     Arithmetic Logic Unit for BorussCPU-Laibach processor core.
-//                  Performs arithmetic, logical, and comparison operations based on 
-//                  ALU control signals. Supports standard operations like ADD, SUB,
-//                  AND, OR, XOR, SLT, and shift operations.
-//===========================================================================================
 module boruss_alu (
     input [7:0] operand_a,
     input [7:0] operand_b,
@@ -55,7 +43,7 @@ module boruss_alu (
         zero_flag = 1'b0;
         carry_flag = 1'b0;
         negative_flag = 1'b0;
-        
+
         case (operation_code)
             8'b00000000: begin // ADD
                 {carry_flag, result} = operand_a + operand_b;
@@ -75,8 +63,7 @@ module boruss_alu (
             8'b00000111: begin // SHR
                 {result, carry_flag} = {1'b0, operand_a};
             end
-            
-            // Operacje skoków
+
             8'b00001000: result = operand_b;             // JMP - Unconditional jump
             8'b00001001: result = operand_b;             // JZ - Jump if zero
             8'b00001010: result = operand_b;             // JNZ - Jump if not zero
@@ -90,8 +77,7 @@ module boruss_alu (
 
             default: result = 8'b00000000;               // NOP
         endcase
-        
-        // flag update based on result
+
         zero_flag = (result == 8'b00000000);
         negative_flag = result[7];
     end

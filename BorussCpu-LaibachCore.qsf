@@ -1,12 +1,12 @@
 # -------------------------------------------------------------------------- #
 #
 # Copyright (C) 2022  Intel Corporation. All rights reserved.
-# Your use of Intel Corporation's design tools, logic functions 
-# and other software and tools, and any partner logic 
-# functions, and any output files from any of the foregoing 
-# (including device programming or simulation files), and any 
-# associated documentation or information are expressly subject 
-# to the terms and conditions of the Intel Program License 
+# Your use of Intel Corporation's design tools, logic functions
+# and other software and tools, and any partner logic
+# functions, and any output files from any of the foregoing
+# (including device programming or simulation files), and any
+# associated documentation or information are expressly subject
+# to the terms and conditions of the Intel Program License
 # Subscription Agreement, the Intel Quartus Prime License Agreement,
 # the Intel FPGA IP License Agreement, or other applicable license
 # agreement, including, without limitation, that your use is for
@@ -69,6 +69,7 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk
 
 # Reset button (KEY0 on DE0-CV)
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to reset
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to reset
 
 # LED assignments for Terasic DE0-CV (LEDR[7:0])
 set_location_assignment PIN_AA2 -to led_out[0]
@@ -84,6 +85,7 @@ set_location_assignment PIN_U1 -to led_out[7]
 # VERIFIED ON HARDWARE:
 # JP1 Pin 2 = UART TX
 # JP1 Pin 4 = UART RX
+set_location_assignment PIN_T17 -to uart_tx
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to uart_tx
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to uart_rx
 
@@ -96,5 +98,7 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led_out[4]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led_out[5]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led_out[6]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led_out[7]
+
+
 
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

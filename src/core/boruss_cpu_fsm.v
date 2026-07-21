@@ -1,8 +1,3 @@
-/*
- *  Created on: 2025
- *      Author: Janusz Wolak
- */
-
 /*-
  * BSD 3-Clause License
  *
@@ -35,15 +30,6 @@
  *
  */
 
-//==============================================================================
-// Module: boruss_cpu_fsm
-//==============================================================================
-// Description:
-//   Finite State Machine controller for the Boruss CPU core. This module 
-//   manages the CPU execution pipeline states, instruction fetch cycles,
-//   decode phases, execution control, and memory access coordination.
-//   Implements the main control logic for CPU operation sequencing.
-//==============================================================================
 module boruss_cpu_fsm (
     input clk,
     input reset,
@@ -52,7 +38,7 @@ module boruss_cpu_fsm (
     input alu_carry_flag,                   // set if execution result caused a carry
     input alu_negative_flag,                // set if execution result is negative
     input [7:0] alu_result,                 // result from ALU (for write-back stage)
-    
+
     output reg [2:0] current_state,         // current state of the FSM (FETCH, DECODE, EXECUTE, WRITEBACK, HALT)
     output reg [7:0] pc,                    // program counter
     output reg [7:0] instruction_addr,      // address to fetch the next instruction from memory
@@ -67,7 +53,6 @@ module boruss_cpu_fsm (
     output reg is_immediate_out             // flag indicating if the current instruction uses an immediate value
 );
 
-    // Definicje stanów
     localparam [2:0] FETCH      = 3'b000;   // Fetch the next instruction
     localparam [2:0] DECODE     = 3'b001;   // Decode the fetched instruction
     localparam [2:0] EXECUTE    = 3'b010;   // Execute the decoded instruction
@@ -79,13 +64,11 @@ module boruss_cpu_fsm (
     reg [7:0] next_pc;                      // next value of the program counter
     reg [7:0] immediate_value;              // immediate value for instructions that require it
     reg is_immediate;                       // flag indicating if the current instruction uses an immediate value
-    
-    // CPU flags (preserved between instructions)
-    reg zero_flag;                          // internal zero flag 
+
+    reg zero_flag;                          // internal zero flag
     reg carry_flag;                         // internal carry flag
     reg negative_flag;                      // internal negative flag
 
-    // output assignments
     always @(*) begin
         immediate_value_out = immediate_value;
         is_immediate_out = is_immediate;
@@ -108,23 +91,20 @@ module boruss_cpu_fsm (
         end else begin
             current_state <= next_state;
             pc <= next_pc;
-            
-            // Update instruction in DECODE state
+
             if (current_state == DECODE) begin
                 current_instruction <= instruction_data;
                 opcode <= instruction_data[7:4];
-                dest_reg <= instruction_data[3:2]; 
+                dest_reg <= instruction_data[3:2];
                 src_reg <= instruction_data[1:0];
                 is_immediate <= 1'b0; // Reset flagi immediate
             end
-            
-            //  save immediate value in FETCH_IMM state
+
             if (current_state == FETCH_IMM) begin
                 immediate_value <= instruction_data;
                 is_immediate <= 1'b1;
             end
 
-            // Update flags in WRITEBACK state
             if (current_state == WRITEBACK && update_flags) begin
                 zero_flag <= alu_zero_flag;
                 carry_flag <= alu_carry_flag;
@@ -141,18 +121,17 @@ module boruss_cpu_fsm (
         execute_jump = 1'b0;
         update_registers = 1'b0;
         update_flags = 1'b0;
-        
+
         case (current_state)
             FETCH: begin
                 instruction_addr = pc;
                 next_state = DECODE;
             end
-            
+
             DECODE: begin
-                // Check if this is a HALT instruction
                 if (instruction_data == 8'hFF) begin
                     next_state = HALT;
-                // Check if the instruction requires an immediate value
+
                 // Format: [4-bit opcode][4-bit modifier] - if modifier != 0, then immediate
                 end else if (instruction_data[3:0] != 4'b0000 && instruction_data[7:4] <= 4'b0111) begin
                     next_state = FETCH_IMM; // Get immediate value
@@ -169,16 +148,16 @@ module boruss_cpu_fsm (
                 instruction_addr = pc + 1; // Get next byte
                 next_state = EXECUTE;
             end
-            
+
             EXECUTE: begin
                 next_state = WRITEBACK;
             end
-            
+
             WRITEBACK: begin
                 // Handle jumps
                 if (opcode >= 4'b1000 && opcode <= 4'b1110) begin
                     update_flags = 1'b1;
-                    
+
                     case (opcode)
                         4'b1000: begin // JMP - unconditional
                             next_pc = immediate_value;
@@ -249,14 +228,14 @@ module boruss_cpu_fsm (
                     update_registers = 1'b1;
                     update_flags = 1'b1;
                 end
-                
+
                 next_state = FETCH;
             end
-            
+
             HALT: begin
                 next_state = HALT;
             end
-            
+
             default: begin
                 next_state = FETCH;
             end
