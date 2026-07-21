@@ -1,8 +1,3 @@
-/*
- *  Created on: 2025
- *      Author: Janusz Wolak
- */
-
 /*-
  * BSD 3-Clause License
  *
@@ -69,7 +64,6 @@ module boruss_alu (
                 {result, carry_flag} = {1'b0, operand_a};
             end
 
-            // Operacje skoków
             8'b00001000: result = operand_b;             // JMP - Unconditional jump
             8'b00001001: result = operand_b;             // JZ - Jump if zero
             8'b00001010: result = operand_b;             // JNZ - Jump if not zero
