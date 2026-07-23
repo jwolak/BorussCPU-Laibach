@@ -41,10 +41,11 @@ integration tests and a dedicated assembly compiler BorASM.
 
 ### Code structure
 ```
-- src/core/ – Main CPU modules (ALU, FSM, register file, etc.)
-- src/memory/ – ROM and RAM modules
-- src/testbench/ – Unit and integration testbenches
-- src/program/ - sources and .hex that can be loaded to ROM at start up (also built by BorASM)
+- rtl/core/ – Main CPU modules (ALU, FSM, register file, etc.)
+- rtl/memory/ – ROM and RAM modules
+- rtl/peripherals/ – peripheral modules such as UART
+- tb/ – Unit and integration testbenches
+- rtl/program/ - sources and .hex that can be loaded to ROM at start up (also built by BorASM)
 ```
 
 ### Dedicated assembly compiler "BorASM"
@@ -134,12 +135,12 @@ Immediate mode note:
 
 ## Example program in ROM
 
-See: [`src/memory/boruss_rom.v`](src/memory/boruss_rom.v)
+See: [`rtl/memory/boruss_rom.v`](rtl/memory/boruss_rom.v)
 
 ```sh
         // Always try to load from file
-        $readmemh("src/program/knight_rider_two_way_borasm_LED1-LED4.hex", rom_memory);
-        $display("Program loaded from src/program/knight_rider_two_way_borasm_LED1-LED4.hex");
+        $readmemh("rtl/program/knight_rider_two_way_borasm_LED1-LED4.hex", rom_memory);
+        $display("Program loaded from rtl/program/knight_rider_two_way_borasm_LED1-LED4.hex");
 
         // Check if the first byte is != 0 (program loaded correctly)
         if (rom_memory[0] == 8'h00) begin
@@ -157,14 +158,14 @@ See: [`src/memory/boruss_rom.v`](src/memory/boruss_rom.v)
             rom_memory[8'h09] = 8'b10000000; // JMP
             rom_memory[8'h0A] = 8'h00;       // Address
         end else begin
-            $display("Program loaded from src/program/knight_rider_two_way_borasm_LED1-LED4.hex");
+            $display("Program loaded from rtl/program/knight_rider_two_way_borasm_LED1-LED4.hex");
         end
 ```
 ### Demo program (Terasic DE0-Nano Cyclone® IV EP4CE22F17C6N FPGA)
 
 ![BorussCPU Laibach DE0-Nano Demo](media/BorussCPU-Laibach-DE0Nano.gif)
 
-[See source .asm file: `src/program/knight_rider_two_way_borasm_LED1-LED4.asm`](src/program/knight_rider_two_way_borasm_LED1-LED4.asm)
+[See source .asm file: `rtl/program/knight_rider_two_way_borasm_LED1-LED4.asm`](rtl/program/knight_rider_two_way_borasm_LED1-LED4.asm)
 
 ```
 MOV R0, #1  ;LOAD immediate value 1 to R0
@@ -180,7 +181,7 @@ SHR R0      ;(LED1->LED0)
 JMP loop
 ```
 
-[See output BorASM .hex file: `src/program/knight_rider_two_way_borasm_LED1-LED4.hex`](src/program/knight_rider_two_way_borasm_LED1-LED4.hex)
+[See output BorASM .hex file: `rtl/program/knight_rider_two_way_borasm_LED1-LED4.hex`](rtl/program/knight_rider_two_way_borasm_LED1-LED4.hex)
 ```
 51
 01
@@ -211,9 +212,9 @@ Link: [See BorussCPU Demo program](media/BorussCPU-Laibach-DE0Nano.mp4)
 UART (DE0-CV):
 - TxD (uart_tx) is assigned to PIN_T17.
 
-The loaded program is a Knight Rider variant for LED0-LED6. The assembly source is in [src/program/knight_rider_two_way_borasm_LED0-LED6.asm](src/program/knight_rider_two_way_borasm_LED0-LED6.asm), and the generated HEX file is in [src/program/knight_rider_de0_cv_LED0_LED6.hex](src/program/knight_rider_de0_cv_LED0_LED6.hex).
+The loaded program is a Knight Rider variant for LED0-LED6. The assembly source is in [rtl/program/knight_rider_two_way_borasm_LED0-LED6.asm](rtl/program/knight_rider_two_way_borasm_LED0-LED6.asm), and the generated HEX file is in [rtl/program/knight_rider_de0_cv_LED0_LED6.hex](rtl/program/knight_rider_de0_cv_LED0_LED6.hex).
 
-[See source .asm file: `src/program/knight_rider_two_way_borasm_LED0-LED6.asm`](src/program/knight_rider_two_way_borasm_LED0-LED6.asm)
+[See source .asm file: `rtl/program/knight_rider_two_way_borasm_LED0-LED6.asm`](rtl/program/knight_rider_two_way_borasm_LED0-LED6.asm)
 
 ```
 MOV R0, #1  ;LOAD immediate value 1 to R0
@@ -233,7 +234,7 @@ SHR R0      ;(LED1->LED0)
 JMP loop
 ```
 
-[See output BorASM .hex file: `src/program/knight_rider_de0_cv_LED0_LED6.hex`](src/program/knight_rider_de0_cv_LED0_LED6.hex)
+[See output BorASM .hex file: `rtl/program/knight_rider_de0_cv_LED0_LED6.hex`](rtl/program/knight_rider_de0_cv_LED0_LED6.hex)
 ```
 51
 01
